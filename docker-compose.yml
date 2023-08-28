@@ -1,0 +1,119 @@
+x-logging: &logging
+  driver: local
+  options:
+    max-file: 10
+
+x-image-main: &image-main
+  image: ghcr.io/shutter-network/snapshot-main:1133
+
+x-image-assets: &image-assets
+  image: ghcr.io/shutter-network/snapshot-assets:1133
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+      - ./scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh
+    healthcheck:
+      test: pg_isready -U postgres
+    logging: *logging
+
+  assets:
+    <<: *image-assets
+    command: "sleep infinity"
+
+  keyper-create-config:
+    << *image-main
+    entrypoint:
+      - /rolling-shutter
+      - snapshotkeyper
+    volumes:
+      - ./config:/config
+    command: " /rolling-shutter snapshotkeyper generate-config --output /config/keyper.toml"
+
+  keyper-initdb:
+    <<: *image-main
+    entrypoint:
+      - /rolling-shutter
+      - snapshotkeyper
+    environment:
+      - SHUTTER_DATABASEURL: "postgres://postgres@db:5432/keyper"
+    volumes:
+      - ./config:/config
+    command: "initdb --config /config/keyper.toml"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  chain-init:
+    <<: *image-main
+    entrypoint:
+      - /rolling-shutter
+      - chain
+    volumes_from:
+      - assets:r
+    volumes:
+      - ./data/chain:/chain
+    command: "init --root /chain --genesis-keyper ${GENESIS_KEYPER} --blocktime ${SM_BLOCKTIME} --listen-address tcp://0.0.0.0:26657 --role validator"
+    depends_on:
+      keyper-initdb:
+        condition: service_completed_successfully
+
+  config_publickey:
+    image: busybox
+    command: "./config_script.sh"
+    volumes:
+      - ./scripts/config_script.sh:/config_script.sh
+      - ./data:/data
+      - ./config:/config
+    depends_on:
+      chain-init:
+        condition: service_completed_successfully
+      assets:
+        condition: service_started
+
+  chain:
+    <<: *image-main
+    restart: always
+    entrypoint:
+      - /rolling-shutter
+      - chain
+    volumes_from:
+      - assets:r
+    volumes:
+      - ./data/chain:/chain
+    command: "--config /chain/config/config.toml"
+    depends_on:
+      assets:
+        condition: service_started
+      config_publickey:
+        condition: service_completed_successfully
+    logging: *logging
+
+  keyper:
+    <<: *image-main
+    restart: always
+    entrypoint:
+      - /rolling-shutter
+      - snapshotkeyper
+    command: "--config /config/keyper.toml"
+    environment:
+      - SHUTTER_DATABASEURL: "postgres://postgres@db:5432/keyper"
+    volumes_from:
+      - assets:r
+    volumes:
+      - ./config:/config
+    depends_on:
+      db:
+        condition: service_healthy
+      chain:
+        condition: service_started
+      assets:
+        condition: service_started
+      config_publickey:
+        condition: service_completed_successfully
+    logging: *logging
