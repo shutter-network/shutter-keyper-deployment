@@ -27,7 +27,7 @@ services:
     command: "sleep infinity"
 
   keyper-create-config:
-    << *image-main
+    <<: *image-main
     entrypoint:
       - /rolling-shutter
       - snapshotkeyper
@@ -41,7 +41,7 @@ services:
       - /rolling-shutter
       - snapshotkeyper
     environment:
-      - SHUTTER_DATABASEURL: "postgres://postgres@db:5432/keyper"
+      - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
     volumes:
       - ./config:/config
     command: "initdb --config /config/keyper.toml"
@@ -102,7 +102,7 @@ services:
       - snapshotkeyper
     command: "--config /config/keyper.toml"
     environment:
-      - SHUTTER_DATABASEURL: "postgres://postgres@db:5432/keyper"
+      - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
     volumes_from:
       - assets:r
     volumes:
