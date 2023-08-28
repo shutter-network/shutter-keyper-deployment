@@ -4,7 +4,7 @@ This repository contains the docker compose configuration to run a snapshot keyp
 
 ## Prerequisites
 
-You will need a recent version of `docker` that bundles the `docker compose` format.
+You will need a recent version of `docker` that bundles the `docker compose` command.
 
 ## Installation
 
