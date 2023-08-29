@@ -7,7 +7,19 @@ x-image-main: &image-main
   image: ghcr.io/shutter-network/snapshot-main:1133
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/snapshot-assets:1133
+  image: ghcr.io/shutter-network/snapshot-assets:test-1
+
+x-shutter-environment: &shutter-environment
+  - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
+  - SHUTTER_ETHEREUM_PRIVATEKEY=${SIGNING_KEY}
+  - SHUTTER_ETHEREUM_ETHEREUMURL=https://rpc.gnosischain.com/
+  - SHUTTER_ETHEREUM_DEPLOYMENTDIR=/deployment/
+  - SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES=/dns4/boot1.snapshot.shutter.network/tcp/23000/p2p/12D3KooWGkX3z2kffawGBVQ9w8ByniHxff6whoTPMyhC61aYABfD,/dns4/boot2.snapshot.shutter.network/tcp/23000/p2p/12D3KooWNeRXuJ4iDz5BAaVCVQ8qLesgmXVn77fjpEXmVktuMy9H
+
+x-shuttermint-environment: &shuttermint-environment
+  - SEED_NODES=859f786077eaa16658cb9f09f072cd66ec15dff3@boot2.snapshot.shutter.network:26656,d8ab66b14697a236a4b3cffda946d19d22ac7458@boot1.snapshot.shutter.network:26656
+  - SHUTTERMINT_MONIKER=${KEYPER_NAME:-$(openssl rand -hex 8)}
+
 
 services:
   db:
@@ -31,17 +43,17 @@ services:
     entrypoint:
       - /rolling-shutter
       - snapshotkeyper
+    environment: *shutter-environment
     volumes:
       - ./config:/config
-    command: " /rolling-shutter snapshotkeyper generate-config --output /config/keyper.toml"
+    command: "generate-config --output /config/keyper.toml"
 
   keyper-initdb:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
       - snapshotkeyper
-    environment:
-      - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
+    environment: *shutter-environment
     volumes:
       - ./config:/config
     command: "initdb --config /config/keyper.toml"
@@ -63,13 +75,26 @@ services:
       keyper-initdb:
         condition: service_completed_successfully
 
-  config_publickey:
+  config-publickey:
     image: busybox
     command: "./config_script.sh"
     volumes:
       - ./scripts/config_script.sh:/config_script.sh
       - ./data:/data
       - ./config:/config
+    depends_on:
+      chain-init:
+        condition: service_completed_successfully
+      assets:
+        condition: service_started
+
+  config-chain:
+    image: busybox
+    command: "./shuttermint_config.sh"
+    volumes:
+      - ./scripts/shuttermint_config.sh:/shuttermint_config.sh
+      - ./data:/data
+    environment: *shuttermint-environment
     depends_on:
       chain-init:
         condition: service_completed_successfully
@@ -84,13 +109,17 @@ services:
       - chain
     volumes_from:
       - assets:r
+    ports:
+      - "0.0.0.0:26656:26656"
     volumes:
       - ./data/chain:/chain
     command: "--config /chain/config/config.toml"
     depends_on:
       assets:
         condition: service_started
-      config_publickey:
+      config-publickey:
+        condition: service_completed_successfully
+      config-chain:
         condition: service_completed_successfully
     logging: *logging
 
@@ -101,8 +130,7 @@ services:
       - /rolling-shutter
       - snapshotkeyper
     command: "--config /config/keyper.toml"
-    environment:
-      - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
+    environment: *shutter-environment
     volumes_from:
       - assets:r
     volumes:
@@ -114,6 +142,6 @@ services:
         condition: service_started
       assets:
         condition: service_started
-      config_publickey:
+      config-publickey:
         condition: service_completed_successfully
     logging: *logging
