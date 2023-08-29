@@ -13,6 +13,7 @@ x-shutter-environment: &shutter-environment
   - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
   - SHUTTER_ETHEREUM_PRIVATEKEY=${SIGNING_KEY}
   - SHUTTER_ETHEREUM_ETHEREUMURL=https://rpc.gnosischain.com/
+  - SHUTTER_SHUTTERMINT_SHUTTERMINTURL=http://chain:26657
   - SHUTTER_ETHEREUM_DEPLOYMENTDIR=/deployment/
   - SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES=/dns4/boot1.snapshot.shutter.network/tcp/23000/p2p/12D3KooWGkX3z2kffawGBVQ9w8ByniHxff6whoTPMyhC61aYABfD,/dns4/boot2.snapshot.shutter.network/tcp/23000/p2p/12D3KooWNeRXuJ4iDz5BAaVCVQ8qLesgmXVn77fjpEXmVktuMy9H
 
