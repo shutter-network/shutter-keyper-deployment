@@ -14,14 +14,19 @@ Clone or download this repository and open a shell inside it.
 ### 2
 Edit the `example.env` file, fill in your information:
 
-- your account key
-- ...
+- your account key: `SIGNING_KEY`
+- a name for your keyper node: `KEYPER_NAME`
+- you **public** IP address: `PUBLIC_IP`
 
 Save the file as `.env`.
 
 ## Running
 
-TODO
+You start your keyper node by running
+
+```
+docker compose up -d
+```
 
 ## Updating
 
