@@ -19,6 +19,7 @@ x-shutter-environment: &shutter-environment
 x-shuttermint-environment: &shuttermint-environment
   - SEED_NODES=859f786077eaa16658cb9f09f072cd66ec15dff3@boot2.snapshot.shutter.network:26656,d8ab66b14697a236a4b3cffda946d19d22ac7458@boot1.snapshot.shutter.network:26656
   - SHUTTERMINT_MONIKER=${KEYPER_NAME:-$(openssl rand -hex 8)}
+  - PUBLIC_IP=${PUBLIC_IP}
 
 
 services:
@@ -91,6 +92,7 @@ services:
   config-chain:
     image: busybox
     command: "./shuttermint_config.sh"
+    environment: *shuttermint-environment
     volumes:
       - ./scripts/shuttermint_config.sh:/shuttermint_config.sh
       - ./data:/data
