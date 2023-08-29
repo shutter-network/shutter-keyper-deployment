@@ -16,7 +16,7 @@ Edit the `example.env` file, fill in your information:
 
 - your account key: `SIGNING_KEY`
 - a name for your keyper node: `KEYPER_NAME`
-- you **public** IP address: `PUBLIC_IP`
+- your **public** IP address: `PUBLIC_IP`
 
 Save the file as `.env`.
 
