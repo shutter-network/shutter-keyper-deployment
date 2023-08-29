@@ -96,7 +96,6 @@ services:
     volumes:
       - ./scripts/shuttermint_config.sh:/shuttermint_config.sh
       - ./data:/data
-    environment: *shuttermint-environment
     depends_on:
       chain-init:
         condition: service_completed_successfully
