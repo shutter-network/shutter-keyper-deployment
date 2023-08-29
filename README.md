@@ -46,3 +46,11 @@ The `docker-compose.yaml` intends to create the configuration files from scratch
 - `chain-init` sets up the shuttermint chain with the help of `genesis.json` from `assets` container
 - `config-publickey` copies the `ValidatorPublicKey` from the `/chain` directory into the `keyper` configuration
 - `chain` & `keyper` finally run the actual stack
+
+### Debugging
+
+The script `./dev/chain.sh` allows you to contact [the RPC API](https://docs.tendermint.com/v0.34/rpc/) of the shuttermint node, inside the docker network. Usage:
+
+    ./dev/chain.sh ENDPOINT
+    e.g.
+    ./dev/chain.sh health
