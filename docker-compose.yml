@@ -113,7 +113,7 @@ services:
     volumes_from:
       - assets:r
     ports:
-      - "0.0.0.0:26656:26656"
+      - "${PUBLIC_IP}:26656:26656"
     volumes:
       - ./data/chain:/chain
     command: "--config /chain/config/config.toml"
@@ -139,7 +139,7 @@ services:
     volumes:
       - ./config:/config
     ports:
-      - "0.0.0.0:23000:23000"
+      - "${PUBLIC_IP}:23000:23000"
     depends_on:
       db:
         condition: service_healthy
