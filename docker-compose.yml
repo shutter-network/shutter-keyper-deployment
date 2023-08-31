@@ -16,6 +16,7 @@ x-shutter-environment: &shutter-environment
   - SHUTTER_SHUTTERMINT_SHUTTERMINTURL=http://chain:26657
   - SHUTTER_ETHEREUM_DEPLOYMENTDIR=/deployment/
   - SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES=/dns4/boot1.snapshot.shutter.network/tcp/23000/p2p/12D3KooWGkX3z2kffawGBVQ9w8ByniHxff6whoTPMyhC61aYABfD,/dns4/boot2.snapshot.shutter.network/tcp/23000/p2p/12D3KooWNeRXuJ4iDz5BAaVCVQ8qLesgmXVn77fjpEXmVktuMy9H
+  - SHUTTER_P2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/23000
 
 x-shuttermint-environment: &shuttermint-environment
   - SEED_NODES=859f786077eaa16658cb9f09f072cd66ec15dff3@boot2.snapshot.shutter.network:26656,d8ab66b14697a236a4b3cffda946d19d22ac7458@boot1.snapshot.shutter.network:26656
@@ -137,6 +138,8 @@ services:
       - assets:r
     volumes:
       - ./config:/config
+    ports:
+      - "0.0.0.0:23000:23000"
     depends_on:
       db:
         condition: service_healthy
