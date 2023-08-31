@@ -4,10 +4,10 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/snapshot-main:1133
+  image: ghcr.io/shutter-network/snapshot-main:1136
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/snapshot-assets:test-1
+  image: ghcr.io/shutter-network/snapshot-assets:test-3
 
 x-shutter-environment: &shutter-environment
   - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
@@ -21,7 +21,6 @@ x-shuttermint-environment: &shuttermint-environment
   - SEED_NODES=859f786077eaa16658cb9f09f072cd66ec15dff3@boot2.snapshot.shutter.network:26656,d8ab66b14697a236a4b3cffda946d19d22ac7458@boot1.snapshot.shutter.network:26656
   - SHUTTERMINT_MONIKER=${KEYPER_NAME:-$(openssl rand -hex 8)}
   - PUBLIC_IP=${PUBLIC_IP}
-
 
 services:
   db:
@@ -70,6 +69,7 @@ services:
       - chain
     volumes_from:
       - assets:r
+    environment: *shuttermint-environment
     volumes:
       - ./data/chain:/chain
     command: "init --root /chain --genesis-keyper ${GENESIS_KEYPER} --blocktime ${SM_BLOCKTIME} --listen-address tcp://0.0.0.0:26657 --role validator"
