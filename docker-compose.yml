@@ -150,3 +150,22 @@ services:
       config-publickey:
         condition: service_completed_successfully
     logging: *logging
+
+  bootstrap:
+    <<: *image-main
+    profiles:
+      - bootstrap
+    entrypoint:
+      - /rolling-shutter
+      - bootstrap
+    command: "--deployment-dir /deployment/ --ethereum-url https://rpc.gnosis.gateway.fm --shuttermint-url http://chain:26657 --signing-key ${SIGNING_KEY}"
+    environment:
+      - GOLOG_LOG_LEVEL=debug
+    volumes_from:
+      - assets:r
+    depends_on:
+      keyper:
+        condition: service_started
+      chain:
+        condition: service_started
+    logging: *logging
