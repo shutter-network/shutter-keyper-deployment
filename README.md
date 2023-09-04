@@ -6,8 +6,33 @@ This repository contains the docker compose configuration to run a snapshot keyp
 
 ## Prerequisites
 
-You will need a recent version of `docker` that bundles the `docker compose` command.
-// TODO: which docker version @ ulo
+
+### System requirements
+
+The computational requirements for running a Keyper node for the Shutter Network are pretty low.
+
+However, it must be ensured that the Keyper remains online and available as much as possible since a supermajority of all Keypers is required for decryption key generation to work.
+
+To ensure availability, the system running the Keyper must have a permanent internet connection (i.e., no residential DSL, cable, etc. connections.) and a static public IPv4 address.
+
+We recommend the following minimum hardware specs:
+
+- 1 CPU core
+- 2 GB RAM
+- 50GB disk
+
+We also strongly advise using a monitoring system to ensure continued availability. Reliable uptime is highly requested.
+
+### Software
+
+- You will need a recent version of `docker` that bundles the `docker compose` command.  // TODO: which docker version @ ulo
+- For cloning the repository you will need `git`.
+
+The Keyper node is distributed as a docker-compose stack consisting of multiple services. This repository contains all necessary files.
+
+Your node will, of course, also need access to a Gnosis Chain RPC. You can find a list of public RPC points [here at the GC docs](https://docs.gnosischain.com/tools/rpc/).
+
+One component is opt-in monitoring, which requires opening a port for access to get the data, as well as a public IP address that needs to be shared with the Shutter team if you wish to participate in system-wide monitoring of the nodes. Personal monitoring is also possible, but we feel it would be great to have an overview of the whole system as well.
 
 ## Installation
 
@@ -28,6 +53,7 @@ You start your keyper node by running
 ```
 docker compose up -d
 ```
+
 ## Backups
 
 Once your keyper is up and running, you should backup the following files
