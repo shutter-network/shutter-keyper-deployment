@@ -1,3 +1,5 @@
+# STILL WIP - DO NOT USE YET
+
 # Snapshot Keyper
 
 This repository contains the docker compose configuration to run a snapshot keyper.
