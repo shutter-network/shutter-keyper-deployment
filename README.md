@@ -7,6 +7,7 @@ This repository contains the docker compose configuration to run a snapshot keyp
 ## Prerequisites
 
 You will need a recent version of `docker` that bundles the `docker compose` command.
+// TODO: which docker version @ ulo
 
 ## Installation
 
@@ -14,13 +15,11 @@ You will need a recent version of `docker` that bundles the `docker compose` com
 Clone or download this repository and open a shell inside it.
 
 ### 2
-Edit the `example.env` file, fill in your information:
+Copy the `example.env` file to `.env` and fill in your information:
 
-- your account key: `SIGNING_KEY`
-- a name for your keyper node: `KEYPER_NAME`
+- your Ethereum account key: `SIGNING_KEY`
+- a name of your choice for your keyper node: `KEYPER_NAME`
 - your **public** IP address: `PUBLIC_IP`
-
-Save the file as `.env`.
 
 ## Running
 
