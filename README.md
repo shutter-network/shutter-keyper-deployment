@@ -8,7 +8,7 @@ You will need a recent version of `docker` that bundles the `docker compose` com
 
 ## Installation
 
-### 1 
+### 1
 Clone or download this repository and open a shell inside it.
 
 ### 2
@@ -27,6 +27,15 @@ You start your keyper node by running
 ```
 docker compose up -d
 ```
+## Backups
+
+Once your keyper is up and running, you should backup the following files
+
+- `.env`
+- `./config`
+- `./data/chain/config`
+
+These files will allow you to re-build your keyper if your machine ever crashes.
 
 ## Updating
 
