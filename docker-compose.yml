@@ -4,7 +4,7 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/snapshot-main:1144
+  image: ghcr.io/shutter-network/snapshot-main:1145
 
 x-image-assets: &image-assets
   image: ghcr.io/shutter-network/snapshot-assets:test-6
@@ -17,6 +17,7 @@ x-shutter-environment: &shutter-environment
   - SHUTTER_ETHEREUM_DEPLOYMENTDIR=/deployment/
   - SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES=/dns4/boot1.snapshot.shutter.network/tcp/23003/p2p/12D3KooWGkX3z2kffawGBVQ9w8ByniHxff6whoTPMyhC61aYABfD,/dns4/boot2.snapshot.shutter.network/tcp/23003/p2p/12D3KooWNeRXuJ4iDz5BAaVCVQ8qLesgmXVn77fjpEXmVktuMy9H
   - SHUTTER_P2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/23003
+  - SHUTTER_METRICS_ENABLE=true
 
 x-shuttermint-environment: &shuttermint-environment
   - SEED_NODES=859f786077eaa16658cb9f09f072cd66ec15dff3@boot2.snapshot.shutter.network:26656,d8ab66b14697a236a4b3cffda946d19d22ac7458@boot1.snapshot.shutter.network:26656
