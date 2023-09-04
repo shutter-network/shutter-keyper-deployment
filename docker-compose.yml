@@ -7,7 +7,7 @@ x-image-main: &image-main
   image: ghcr.io/shutter-network/snapshot-main:1145
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/snapshot-assets:test-11
+  image: ghcr.io/shutter-network/snapshot-assets:test-12
 
 x-shutter-environment: &shutter-environment
   - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
