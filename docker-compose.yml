@@ -50,7 +50,7 @@ services:
     environment: *shutter-environment
     volumes:
       - ./config:/config
-    command: "generate-config --output /config/keyper.toml"
+    command: "generate-config --output /config/generated.toml"
 
   keyper-initdb:
     <<: *image-main
@@ -60,10 +60,12 @@ services:
     environment: *shutter-environment
     volumes:
       - ./config:/config
-    command: "initdb --config /config/keyper.toml"
+    command: "initdb --config /config/generated.toml"
     depends_on:
       db:
         condition: service_healthy
+      keyper-create-config:
+        condition: service_started
 
   chain-init:
     <<: *image-main
@@ -80,6 +82,23 @@ services:
       keyper-initdb:
         condition: service_completed_successfully
 
+  keyper-config-dump:
+    <<: *image-main
+    entrypoint:
+      - /rolling-shutter
+      - snapshotkeyper
+    command: "dump-config --config /config/generated.toml --output /config/keyper.toml"
+    environment: *shutter-environment
+    volumes_from:
+      - assets:r
+    volumes:
+      - ./config:/config
+    depends_on:
+      keyper-create-config:
+        condition: service_started
+      assets:
+        condition: service_started
+
   config-publickey:
     image: busybox
     command: "./config_script.sh"
@@ -88,6 +107,8 @@ services:
       - ./data:/data
       - ./config:/config
     depends_on:
+      keyper-config-dump:
+        condition: service_started
       chain-init:
         condition: service_completed_successfully
       assets:
@@ -135,7 +156,6 @@ services:
       - /rolling-shutter
       - snapshotkeyper
     command: "--config /config/keyper.toml"
-    environment: *shutter-environment
     volumes_from:
       - assets:r
     volumes:
@@ -151,7 +171,7 @@ services:
       assets:
         condition: service_started
       config-publickey:
-        condition: service_completed_successfully
+        condition: service_started
     logging: *logging
 
   bootstrap:
