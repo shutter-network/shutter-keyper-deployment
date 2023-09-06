@@ -4,7 +4,7 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/snapshot-main:1166
+  image: ghcr.io/shutter-network/snapshot-main:1167
 
 x-image-assets: &image-assets
   image: ghcr.io/shutter-network/snapshot-assets:test-21
