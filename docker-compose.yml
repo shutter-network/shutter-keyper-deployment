@@ -41,6 +41,7 @@ services:
   assets:
     <<: *image-assets
     command: "sleep infinity"
+    stop_grace_period: "0s"
 
   keyper-create-config:
     <<: *image-main
