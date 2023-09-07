@@ -74,7 +74,7 @@ services:
       - /rolling-shutter
       - chain
     volumes_from:
-      - assets:r
+      - assets:ro
     environment: *shuttermint-environment
     volumes:
       - ./data/chain:/chain
@@ -91,7 +91,7 @@ services:
     command: "dump-config --config /config/generated.toml --output /config/keyper.toml"
     environment: *shutter-environment
     volumes_from:
-      - assets:r
+      - assets:ro
     volumes:
       - ./config:/config
     depends_on:
@@ -135,7 +135,7 @@ services:
       - /rolling-shutter
       - chain
     volumes_from:
-      - assets:r
+      - assets:ro
     ports:
       - "${PUBLIC_IP}:26656:26656"
     volumes:
@@ -158,7 +158,7 @@ services:
       - snapshotkeyper
     command: "--config /config/keyper.toml"
     volumes_from:
-      - assets:r
+      - assets:ro
     volumes:
       - ./config:/config
     ports:
