@@ -37,8 +37,6 @@ services:
       - ./scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh
     healthcheck:
       test: pg_isready -U postgres
-      start_period: "30s"
-      start_interval: "2s"
     logging: *logging
 
   assets:
