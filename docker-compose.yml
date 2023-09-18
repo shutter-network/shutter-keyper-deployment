@@ -18,12 +18,13 @@ x-shutter-environment: &shutter-environment
   - SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES=/dns4/boot1.snapshot.shutter.network/tcp/23003/p2p/12D3KooWGkX3z2kffawGBVQ9w8ByniHxff6whoTPMyhC61aYABfD,/dns4/boot2.snapshot.shutter.network/tcp/23003/p2p/12D3KooWNeRXuJ4iDz5BAaVCVQ8qLesgmXVn77fjpEXmVktuMy9H
   - SHUTTER_P2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/23003
   - SHUTTER_INSTANCEID=1
-  - SHUTTER_METRICS_ENABLED=true
+  - SHUTTER_METRICS_ENABLED=${METRICS_ENABLED}
 
 x-shuttermint-environment: &shuttermint-environment
   - SEED_NODES=859f786077eaa16658cb9f09f072cd66ec15dff3@boot2.snapshot.shutter.network:26656,d8ab66b14697a236a4b3cffda946d19d22ac7458@boot1.snapshot.shutter.network:26656
   - SHUTTERMINT_MONIKER=${KEYPER_NAME:-$(openssl rand -hex 8)}
   - PUBLIC_IP=${PUBLIC_IP}
+  - METRICS_ENABLED=${METRICS_ENABLED}
 
 services:
   db:
@@ -36,6 +37,8 @@ services:
       - ./scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh
     healthcheck:
       test: pg_isready -U postgres
+      start_period: "30s"
+      start_interval: "2s"
     logging: *logging
 
   assets:
@@ -138,6 +141,7 @@ services:
       - assets:ro
     ports:
       - "${PUBLIC_IP}:26656:26656"
+      - "${METRICS_LISTEN_IP}:26660:26660"
     volumes:
       - ./data/chain:/chain
     command: "--config /chain/config/config.toml"
