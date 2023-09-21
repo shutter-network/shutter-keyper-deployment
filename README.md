@@ -1,8 +1,6 @@
-# STILL WIP - DO NOT USE YET
-
 # Snapshot Keyper
 
-This repository contains the docker compose configuration to run a snapshot keyper.
+This repository contains the docker compose configuration to run a snapshot Keyper.
 
 ## Prerequisites
 
@@ -22,33 +20,44 @@ We recommend the following minimum hardware specs:
 - 50GB disk
 
 We also strongly advise using a monitoring system to ensure continued availability. Reliable uptime is highly requested.
+Shutter Network / brainbot does operate a prometheus compatible monitoring system. See below for details.
 
 ### Software
 
-- You will need a recent version of `docker` that bundles the `docker compose` command.  // TODO: which docker version @ ulo
+- You will need a recent version of `docker` and the `docker compose` cli plugin. 
 - For cloning the repository you will need `git`.
 
 The Keyper node is distributed as a docker-compose stack consisting of multiple services. This repository contains all necessary files.
 
-Your node will, of course, also need access to a Gnosis Chain RPC. You can find a list of public RPC points [here at the GC docs](https://docs.gnosischain.com/tools/rpc/).
+One component is opt-in monitoring, which by default requires opening a port for scrape access to the metrics endpoints, 
+as well as a public IP address that needs to be shared with the Shutter team if you wish to participate in system-wide 
+monitoring of the nodes.
+If you would rather not open up the metrics endpoints support for push based metrics will be added in the near future. 
 
-One component is opt-in monitoring, which requires opening a port for access to get the data, as well as a public IP address that needs to be shared with the Shutter team if you wish to participate in system-wide monitoring of the nodes. Personal monitoring is also possible, but we feel it would be great to have an overview of the whole system as well.
+Personal monitoring is also possible, but we feel it would be great to have an overview of the whole system as well.
+
 
 ## Installation
 
-### 1
-Clone or download this repository and open a shell inside it.
+1. Clone this repository and open a shell inside it:
 
-### 2
-Copy the `example.env` file to `.env` and fill in your information:
+   ```shell
+   git clone --branch v1.0.0 https://github.com/shutter-network/snapshot-keyper.git
+   cd snapshot-keyper
+   ```
 
-- your Ethereum account key: `SIGNING_KEY`
-- a name of your choice for your keyper node: `KEYPER_NAME`
-- your **public** IP address: `PUBLIC_IP`
+2. Copy the `example.env` file to `.env` and fill in your information:
+   - Your Ethereum account key: `SIGNING_KEY`
+     
+     **IMPORTANT**: Please double-check that you are using the key associated with the address that you provided during the Keyper application process. Otherwise, your Keyper node will not be able to join the network.
+   - A name of your choice for your keyper node: `KEYPER_NAME`
+   - Your **public** IP address: `PUBLIC_IP`
+
+     It is important that this is the address your node is reachable under from the internet since it is used for the P2P network between the nodes.
 
 ## Running
 
-You start your keyper node by running
+You start your Keyper node by running
 
 ```
 docker compose up -d
@@ -56,37 +65,20 @@ docker compose up -d
 
 ## Backups
 
-Once your keyper is up and running, you should backup the following files
+Once your Keyper is up and running, you should regularly back up the following:
 
 - `.env`
 - `./config`
-- `./data/chain/config`
+- `./data`
 
-These files will allow you to re-build your keyper if your machine ever crashes.
+These files will allow you to re-build your Keyper in case of data loss.
 
 ## Updating
 
-TODO
+TBD
 
+## Version History
 
-## Developer Notes
+### `v1.0.0` - `2023-09-21`
 
-The `docker-compose.yaml` intends to create the configuration files from scratch, with the help of some values set in
-`.env`:
-
-- `db` container has a db creation script mounted
-- `assets` container contains the deployment files and shuttermint genesis file. It is a prerequisite for the `chain` and `keyper` containers, to mount the necessary assets.
-- `keyper-create-config` should run once, if there is no config file yet.
-- `keyper-initdb` runs the `/rolling-shutter snapshotkeyper initdb` command
-- `chain-init` sets up the shuttermint chain with the help of `genesis.json` from `assets` container
-- `config-publickey` copies the `ValidatorPublicKey` from the `/chain` directory into the `keyper` configuration
-- `config-chain` adjusts the shuttermint chain configuration according to environment variables and docker setup
-- `chain` & `keyper` finally run the actual stack
-
-### Debugging
-
-The script `./dev/chain.sh` allows you to contact [the RPC API](https://docs.tendermint.com/v0.34/rpc/) of the shuttermint node, inside the docker network. Usage:
-
-    ./dev/chain.sh ENDPOINT
-    e.g.
-    ./dev/chain.sh health
+Initial public release
