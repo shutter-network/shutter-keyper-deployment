@@ -4,10 +4,10 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/snapshot:v1.0.0
+  image: ghcr.io/shutter-network/snapshot-livetest:v1.0.0
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/snapshot-assets:v1.0.1
+  image: ghcr.io/shutter-network/snapshot-assets-livetest:v1.0.0
 
 x-shutter-environment: &shutter-environment
   - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
@@ -15,13 +15,13 @@ x-shutter-environment: &shutter-environment
   - SHUTTER_ETHEREUM_ETHEREUMURL=https://rpc.gnosis.gateway.fm
   - SHUTTER_SHUTTERMINT_SHUTTERMINTURL=http://chain:26657
   - SHUTTER_ETHEREUM_DEPLOYMENTDIR=/deployment/
-  - SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES=/dns4/boot1.snapshot.shutter.network/tcp/23003/p2p/12D3KooWGkX3z2kffawGBVQ9w8ByniHxff6whoTPMyhC61aYABfD,/dns4/boot2.snapshot.shutter.network/tcp/23003/p2p/12D3KooWNeRXuJ4iDz5BAaVCVQ8qLesgmXVn77fjpEXmVktuMy9H
+  - SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES=/dns4/boot1.snapshot.staging.shutter.network/tcp/23003/p2p/12D3KooWGkX3z2kffawGBVQ9w8ByniHxff6whoTPMyhC61aYABfD,/dns4/boot2.snapshot.staging.shutter.network/tcp/23003/p2p/12D3KooWNeRXuJ4iDz5BAaVCVQ8qLesgmXVn77fjpEXmVktuMy9H
   - SHUTTER_P2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/23003
   - SHUTTER_INSTANCEID=555
   - SHUTTER_METRICS_ENABLED=${METRICS_ENABLED}
 
 x-shuttermint-environment: &shuttermint-environment
-  - SEED_NODES=859f786077eaa16658cb9f09f072cd66ec15dff3@boot2.snapshot.shutter.network:26656,d8ab66b14697a236a4b3cffda946d19d22ac7458@boot1.snapshot.shutter.network:26656
+  - SEED_NODES=859f786077eaa16658cb9f09f072cd66ec15dff3@boot2.snapshot.staging.shutter.network:26656,d8ab66b14697a236a4b3cffda946d19d22ac7458@boot1.snapshot.staging.shutter.network:26656
   - SHUTTERMINT_MONIKER=${KEYPER_NAME:-$(openssl rand -hex 8)}
   - PUBLIC_IP=${PUBLIC_IP}
   - METRICS_ENABLED=${METRICS_ENABLED}
