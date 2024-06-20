@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -ex
+
 CFG=/data/chain/config/config.toml
 
 sed -i "/^bootstrap-peers =/c\bootstrap-peers = \"${SEED_NODES}\"" $CFG
