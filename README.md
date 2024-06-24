@@ -22,7 +22,7 @@ We recommend the following minimum hardware specs:
 
 - 2 CPU core
 - 4 GB RAM
-- >20GB disk
+- \>20GB disk
 
 We also strongly advise using a monitoring system to ensure continued availability. Reliable uptime is highly requested.
 Shutter Network / brainbot does operate a prometheus compatible monitoring system. See below for details.
