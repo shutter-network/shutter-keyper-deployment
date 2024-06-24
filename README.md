@@ -20,9 +20,9 @@ To ensure availability, the system running the Keyper must have a permanent inte
 
 We recommend the following minimum hardware specs:
 
-- 1 CPU core
-- 2 GB RAM
-- 50GB disk
+- 2 CPU core
+- 4 GB RAM
+- >20GB disk
 
 We also strongly advise using a monitoring system to ensure continued availability. Reliable uptime is highly requested.
 Shutter Network / brainbot does operate a prometheus compatible monitoring system. See below for details.
