@@ -1,9 +1,14 @@
-# Snapshot Keyper
+# Gnosis Keyper
 
-This repository contains the docker compose configuration to run a snapshot Keyper.
+This repository contains the docker compose configuration to run a gnosis Keyper.
 
 ## Prerequisites
 
+### Gnosis beacon and execution clients
+
+Keypers are required to have access to a Gnosis Chain [consensus client API](https://ethereum.github.io/beacon-APIs/).
+If you need to host these, please refer to https://docs.gnosischain.com/node. Please note, that additional system requirements to run gnosis chain nodes
+are not part of the section below and need to be considered explicitly.
 
 ### System requirements
 
@@ -42,8 +47,8 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 1. Clone this repository and open a shell inside it:
 
    ```shell
-   git clone --branch v1.0.0 https://github.com/shutter-network/snapshot-keyper.git
-   cd snapshot-keyper
+   git clone --branch gnosis/main https://github.com/shutter-network/shutter-keyper-deployment.git
+   cd shutter-keyper-deployment
    ```
 
 2. Copy the `example.env` file to `.env` and fill in your information:
