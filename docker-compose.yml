@@ -4,10 +4,10 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/rolling-shutter:gnosis-rc1
+  image: ghcr.io/shutter-network/rolling-shutter:gnosis-rc3
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1.1
+  image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1-rc1
 
 x-shutter-environment: &shutter-environment
   #- SHUTTER_INSTANCEID= - set via config script
@@ -17,6 +17,7 @@ x-shutter-environment: &shutter-environment
   #- SHUTTER_GNOSIS_ENCRYPTEDGASLIMIT= - set via config script
   - SHUTTER_GNOSIS_MAXTXPOINTERAGE=${MAXTXPOINTERAGE}
   #- SHUTTER_GNOSIS_GENESISSLOTTIMESTAMP= - set via config script
+  #- SHUTTER_GNOSIS_SYNCSTARTBLOCKNUMBER= - set via config script
   - SHUTTER_GNOSIS_NODE_PRIVATEKEY=${SIGNING_KEY}
   - SHUTTER_GNOSIS_NODE_CONTRACTSURL=${GNOSIS_EXECUTION_RPC_WS_URL}
   - SHUTTER_GNOSIS_NODE_ETHEREUMURL=${GNOSIS_EXECUTION_RPC_HTTP_URL}

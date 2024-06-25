@@ -17,6 +17,7 @@ sed -i "/^MaxNumKeysPerMessage/c\MaxNumKeysPerMessage = ${_ASSETS_MAX_NUM_KEYS_P
 sed -i "/^EncryptedGasLimit/c\EncryptedGasLimit = ${_ASSETS_ENCRYPTED_GAS_LIMIT}" $CFG
 sed -i "/^MaxTxPointerAge/c\MaxTxPointerAge =  ${SHUTTER_GNOSIS_MAXTXPOINTERAGE}" $CFG
 sed -i "/^GenesisSlotTimestamp/c\GenesisSlotTimestamp = ${_ASSETS_GENESIS_SLOT_TIMESTAMP}" $CFG
+sed -i "/^SyncStartBlockNumber/c\SyncStartBlockNumber = ${_ASSETS_SYNC_START_BLOCK_NUMBER}" $CFG
 sed -i "/^PrivateKey/c\PrivateKey = \"${SHUTTER_GNOSIS_NODE_PRIVATEKEY}\"" $CFG
 sed -i "/^ContractsURL/c\ContractsURL = \"${SHUTTER_GNOSIS_NODE_CONTRACTSURL}\"" $CFG
 sed -i "/^DeploymentDir/c\DeploymentDir = \"\"  # unused" $CFG
