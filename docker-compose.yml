@@ -7,7 +7,7 @@ x-image-main: &image-main
   image: ghcr.io/shutter-network/rolling-shutter:gnosis-rc3
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1-rc1
+  image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1-rc2
 
 x-shutter-environment: &shutter-environment
   #- SHUTTER_INSTANCEID= - set via config script
@@ -35,7 +35,6 @@ x-shutter-environment: &shutter-environment
   - SHUTTER_METRICS_ENABLED=${METRICS_ENABLED}
 
 x-shuttermint-environment: &shuttermint-environment
-  - SEED_NODES=0724aca9afc335dda8ad68b365f6b1f36f26a3a6@206.81.27.17:26656
   - SHUTTERMINT_MONIKER=${KEYPER_NAME:-$(openssl rand -hex 8)}
   - PUBLIC_IP=${PUBLIC_IP}
   - METRICS_ENABLED=${METRICS_ENABLED}
@@ -108,8 +107,6 @@ services:
       - ./data:/data
       - ./config:/config
     depends_on:
-#      keyper-config-dump:
-#        condition: service_completed_successfully
       chain-init:
         condition: service_completed_successfully
       assets:
