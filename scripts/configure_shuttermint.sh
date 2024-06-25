@@ -1,6 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-set -ex
+set -eux
 
 CFG=/data/chain/config/config.toml
 

@@ -4,20 +4,33 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/snapshot-livetest:v1.1.0
+  image: ghcr.io/shutter-network/rolling-shutter:gnosis-rc1
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/snapshot-assets-livetest:v1.1.0
+  image: ghcr.io/shutter-network/assets-gnosis:rc1
 
 x-shutter-environment: &shutter-environment
+  #- SHUTTER_INSTANCEID= - set via config script
   - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
-  - SHUTTER_ETHEREUM_PRIVATEKEY=${SIGNING_KEY}
-  - SHUTTER_ETHEREUM_ETHEREUMURL=https://rpc.gnosis.gateway.fm
-  - SHUTTER_SHUTTERMINT_SHUTTERMINTURL=http://chain:26657
-  - SHUTTER_ETHEREUM_DEPLOYMENTDIR=/deployment/
-  - SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES=/ip4/206.81.27.17/tcp/23000/p2p/12D3KooWGUy9Rcnkm6NhnM6BVjwocNfpQVomBHVKNf6MP3ACv9BE
+  - SHUTTER_BEACONAPIURL=${GNOSIS_BEACON_RPC_HTTP_URL}
+  #- SHUTTER_MAXNUMKEYSPERMESSAGE= - set via config script
+  #- SHUTTER_GNOSIS_ENCRYPTEDGASLIMIT= - set via config script
+  - SHUTTER_GNOSIS_MAXTXPOINTERAGE=${MAXTXPOINTERAGE}
+  #- SHUTTER_GNOSIS_GENESISSLOTTIMESTAMP= - set via config script
+  - SHUTTER_GNOSIS_NODE_PRIVATEKEY=${SIGNING_KEY}
+  - SHUTTER_GNOSIS_NODE_CONTRACTSURL=${GNOSIS_EXECUTION_RPC_WS_URL}
+  - SHUTTER_GNOSIS_NODE_ETHEREUMURL=${GNOSIS_EXECUTION_RPC_HTTP_URL}
+  #- SHUTTER_GNOSIS_CONTRACTS_KEYPERSETMANAGER= - set via config script
+  #- SHUTTER_GNOSIS_CONTRACTS_KEYBROADCASTCONTRACT= - set via config script
+  #- SHUTTER_GNOSIS_CONTRACTS_EONKEYPUBLISH= - set via config script
+  #- SHUTTER_GNOSIS_CONTRACTS_SEQUENCER= - set via config script
+  #- SHUTTER_GNOSIS_CONTRACTS_VALIDATORREGISTRY= - set via config script
+  #- SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES= - set via config script
   - SHUTTER_P2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/23003
-  - SHUTTER_INSTANCEID=555
+  #- SHUTTER_P2P_DISCOVERYNAMESPACE= - set via config script
+  - SHUTTER_SHUTTERMINT_SHUTTERMINTURL=http://chain:26657
+  #- SHUTTER_SHUTTERMINT_DKGPHASELENGTH= - set via config script
+  #- SHUTTER_SHUTTERMINT_DKGSTARTBLOCKDELTA= - set via config script
   - SHUTTER_METRICS_ENABLED=${METRICS_ENABLED}
 
 x-shuttermint-environment: &shuttermint-environment
@@ -48,7 +61,7 @@ services:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
-      - snapshotkeyper
+      - keyper
     environment: *shutter-environment
     volumes:
       - ./config:/config
@@ -67,7 +80,7 @@ services:
       db:
         condition: service_healthy
       keyper-create-config:
-        condition: service_started
+        condition: service_completed_successfully
 
   chain-init:
     <<: *image-main
@@ -88,7 +101,7 @@ services:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
-      - snapshotkeyper
+      - keyper
     command: "dump-config --config /config/generated.toml --output /config/keyper.toml"
     environment: *shutter-environment
     volumes_from:
@@ -97,31 +110,33 @@ services:
       - ./config:/config
     depends_on:
       keyper-create-config:
-        condition: service_started
+        condition: service_completed_successfully
       assets:
         condition: service_started
 
-  config-publickey:
+  keyper-configure:
     image: busybox
-    command: "./config_script.sh"
+    command: "./configure_keyper.sh"
+    volumes_from:
+      - assets:ro
     volumes:
-      - ./scripts/config_script.sh:/config_script.sh
+      - ./scripts/configure_keyper.sh:/configure_keyper.sh
       - ./data:/data
       - ./config:/config
     depends_on:
       keyper-config-dump:
-        condition: service_started
+        condition: service_completed_successfully
       chain-init:
         condition: service_completed_successfully
       assets:
         condition: service_started
 
-  config-chain:
+  chain-configure:
     image: busybox
-    command: "./shuttermint_config.sh"
+    command: "./configure_shuttermint.sh"
     environment: *shuttermint-environment
     volumes:
-      - ./scripts/shuttermint_config.sh:/shuttermint_config.sh
+      - ./scripts/configure_shuttermint.sh:/configure_shuttermint.sh
       - ./data:/data
     depends_on:
       chain-init:
@@ -146,9 +161,9 @@ services:
     depends_on:
       assets:
         condition: service_started
-      config-publickey:
+      keyper-configure:
         condition: service_completed_successfully
-      config-chain:
+      chain-configure:
         condition: service_completed_successfully
     logging: *logging
 
@@ -173,6 +188,6 @@ services:
         condition: service_started
       assets:
         condition: service_started
-      config-publickey:
-        condition: service_started
+      keyper-configure:
+        condition: service_completed_successfully
     logging: *logging
