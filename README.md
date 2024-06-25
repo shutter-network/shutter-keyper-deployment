@@ -52,11 +52,14 @@ Personal monitoring is also possible, but we feel it would be great to have an o
    ```
 
 2. Copy the `example.env` file to `.env` and fill in your information:
-   - Your Ethereum account key: `SIGNING_KEY`
+   - Your Ethereum account key (hex-encoded without `0x` prefix): `SIGNING_KEY`
      
      **IMPORTANT**: Please double-check that you are using the key associated with the address that you provided during the Keyper application process. Otherwise, your Keyper node will not be able to join the network.
    - A name of your choice for your keyper node: `KEYPER_NAME`
    - Your **public** IP address: `PUBLIC_IP`
+   - A Gnosis consensus / beacon chain API endpoint: `GNOSIS_BEACON_RPC_HTTP_URL`
+   - A Gnosis execution JSON RPC API endpoint (HTTP): `GNOSIS_EXECUTION_RPC_HTTP_URL`
+   - A Gnosis execution JSON RPC API endpoint (WebSocket): `GNOSIS_EXECUTION_RPC_WS_URL`
 
      It is important that this is the address your node is reachable under from the internet since it is used for the P2P network between the nodes.
 
