@@ -7,7 +7,7 @@ x-image-main: &image-main
   image: ghcr.io/shutter-network/rolling-shutter:gnosis-rc1
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1
+  image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1.1
 
 x-shutter-environment: &shutter-environment
   #- SHUTTER_INSTANCEID= - set via config script
