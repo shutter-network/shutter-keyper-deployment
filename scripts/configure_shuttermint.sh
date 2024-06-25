@@ -1,12 +1,17 @@
-#!/usr/bin/env bash
+#!/usr/bin/env ash
 
 set -eux
 
+[[ -f /assets/variables.env ]] && . /assets/variables.env || (echo "Missing variables file (/assets/variables), assets container missing?"; exit 1)
+
 CFG=/data/chain/config/config.toml
 
-sed -i "/^bootstrap_peers =/c\bootstrap_peers = \"${SEED_NODES}\"" $CFG
+rm /data/chain/config/genesis.json
+ln -s /assets/genesis.json /data/chain/config/genesis.json
+
+sed -i "/^seeds =/c\seeds = \"${_ASSETS_SHUTTERMINT_SEED_NODES}\"" $CFG
 sed -i "/^moniker =/c\moniker = \"${SHUTTERMINT_MONIKER}\"" $CFG
-sed -i "/^genesis_file =/c\genesis_file = \"/info/genesis.json\"" $CFG
+sed -i "/^genesis_file =/c\genesis_file = \"/assets/genesis.json\"" $CFG
 sed -i "/^external_address =/c\external_address = \"${PUBLIC_IP}:26656\"" $CFG
 sed -i "/^addr_book_strict =/c\addr_book_strict = true" $CFG
 sed -i "/^pex =/c\pex = true" $CFG

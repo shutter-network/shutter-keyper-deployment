@@ -7,7 +7,7 @@ x-image-main: &image-main
   image: ghcr.io/shutter-network/rolling-shutter:gnosis-rc1
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/assets-gnosis:rc1
+  image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1
 
 x-shutter-environment: &shutter-environment
   #- SHUTTER_INSTANCEID= - set via config script
@@ -54,14 +54,13 @@ services:
 
   assets:
     <<: *image-assets
-    command: "sleep infinity"
     stop_grace_period: "0s"
 
   keyper-create-config:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
-      - keyper
+      - gnosiskeyper
     environment: *shutter-environment
     volumes:
       - ./config:/config
@@ -71,7 +70,7 @@ services:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
-      - snapshotkeyper
+      - gnosiskeyper
     environment: *shutter-environment
     volumes:
       - ./config:/config
@@ -87,9 +86,9 @@ services:
     entrypoint:
       - /rolling-shutter
       - chain
+    environment: *shuttermint-environment
     volumes_from:
       - assets:ro
-    environment: *shuttermint-environment
     volumes:
       - ./data/chain:/chain
     command: "init --root /chain --genesis-keyper ${GENESIS_KEYPER} --blocktime ${SM_BLOCKTIME} --listen-address tcp://0.0.0.0:26657 --role validator"
@@ -97,26 +96,10 @@ services:
       keyper-initdb:
         condition: service_completed_successfully
 
-  keyper-config-dump:
-    <<: *image-main
-    entrypoint:
-      - /rolling-shutter
-      - keyper
-    command: "dump-config --config /config/generated.toml --output /config/keyper.toml"
-    environment: *shutter-environment
-    volumes_from:
-      - assets:ro
-    volumes:
-      - ./config:/config
-    depends_on:
-      keyper-create-config:
-        condition: service_completed_successfully
-      assets:
-        condition: service_started
-
   keyper-configure:
     image: busybox
     command: "./configure_keyper.sh"
+    environment: *shutter-environment
     volumes_from:
       - assets:ro
     volumes:
@@ -124,8 +107,8 @@ services:
       - ./data:/data
       - ./config:/config
     depends_on:
-      keyper-config-dump:
-        condition: service_completed_successfully
+#      keyper-config-dump:
+#        condition: service_completed_successfully
       chain-init:
         condition: service_completed_successfully
       assets:
@@ -135,6 +118,8 @@ services:
     image: busybox
     command: "./configure_shuttermint.sh"
     environment: *shuttermint-environment
+    volumes_from:
+      - assets:ro
     volumes:
       - ./scripts/configure_shuttermint.sh:/configure_shuttermint.sh
       - ./data:/data
@@ -150,11 +135,11 @@ services:
     entrypoint:
       - /rolling-shutter
       - chain
-    volumes_from:
-      - assets:ro
     ports:
       - "${PUBLIC_IP}:26656:26656"
       - "${METRICS_LISTEN_IP}:26660:26660"
+    volumes_from:
+      - assets:ro
     volumes:
       - ./data/chain:/chain
     command: "--config /chain/config/config.toml"
@@ -172,7 +157,7 @@ services:
     restart: always
     entrypoint:
       - /rolling-shutter
-      - snapshotkeyper
+      - gnosiskeyper
     command: "--config /config/keyper.toml"
     volumes_from:
       - assets:ro
