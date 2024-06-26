@@ -63,6 +63,8 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 
      It is important that this is the address your node is reachable under from the internet since it is used for the P2P network between the nodes.
 
+
+
 ## Running
 
 You start your Keyper node by running
@@ -88,5 +90,14 @@ TBD
 ## Version History
 
 ### `v1.0.0` - `2023-09-21`
-
 Initial public release
+
+### Contract Deployments
+```txt
+  Deployer: 0x8A7589135584CECFA5Bd73De02864075232407DD
+-----------------------------------------------------------------------
+  Sequencer: 0xB9e2DD00397a6c69772c7b6Ab5EAf816890084D7
+  ValidatorRegistry: 0xefCC23E71f6bA9B22C4D28F7588141d44496A6D6
+  keyperSetManager: 0x7C2337f9bFce19d8970661DA50dE8DD7d3D34abb
+  keyBroadcastContract: 0x626dB87f9a9aC47070016A50e802dd5974341301
+```
