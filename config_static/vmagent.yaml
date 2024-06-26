@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'keyper'
+    static_configs:
+      - targets: ["keyper:9100"]
+        labels:
+          instance: "%{KEYPER_NAME}"
+  - job_name: 'shuttermint'
+    metrics_path: /
+    static_configs:
+      - targets: ["chain:26660"]
+        labels:
+          instance: "%{KEYPER_NAME}"

@@ -4,10 +4,13 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/rolling-shutter:gnosis-rc3
+  image: rolling-shutter
 
 x-image-assets: &image-assets
   image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1-rc3
+
+x-image-metrics: &image-metrics
+  image: victoriametrics/vmagent:v1.101.0
 
 x-shutter-environment: &shutter-environment
   #- SHUTTER_INSTANCEID= - set via config script
@@ -173,4 +176,18 @@ services:
         condition: service_started
       keyper-configure:
         condition: service_completed_successfully
+    logging: *logging
+
+  vmagent:
+    profiles: [pushmetrics]
+    <<: *image-metrics
+    restart: always
+    environment:
+      KEYPER_NAME:
+      PUSHGATEWAY_URL:
+    ports:
+      - 9111:9111
+    volumes:
+      - ./config_static/vmagent.yaml:/config/vmagent.yml
+    command: "-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL}"
     logging: *logging
