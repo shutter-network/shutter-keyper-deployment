@@ -51,7 +51,7 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 ```shell
 git clone https://github.com/shutter-network/shutter-keyper-deployment.git
 cd shutter-keyper-deployment
-git checkout gnosis/v1.0.0
+git checkout gnosis/v1.0.1
 ```
 
 2. Copy the `example.env` file to `.env` and fill in your information:
@@ -105,6 +105,9 @@ docker compose down && && docker compose up -d
 ```
 
 ## Version History
+
+### `gnosis/v1.0.1` - `2024-06-26`
+Fix small typo in `.env` example file
 
 ### `gnosis/v1.0.0` - `2024-06-26`
 Initial public release
