@@ -189,5 +189,5 @@ services:
       - 9111:9111
     volumes:
       - ./config_static/vmagent.yaml:/config/vmagent.yml
-    command: "-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL}"
+    command: "-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL} -pushmetrics.extraLabel='deployment=gnosis'"
     logging: *logging
