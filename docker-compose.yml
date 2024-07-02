@@ -53,6 +53,8 @@ services:
       - ./scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh
     healthcheck:
       test: pg_isready -U postgres
+      start_period: "30s"
+      start_interval: "1s"
     logging: *logging
 
   assets:
@@ -98,6 +100,8 @@ services:
     depends_on:
       keyper-initdb:
         condition: service_completed_successfully
+      assets:
+        condition: service_healthy
 
   keyper-configure:
     image: busybox
@@ -113,7 +117,7 @@ services:
       chain-init:
         condition: service_completed_successfully
       assets:
-        condition: service_started
+        condition: service_healthy
 
   chain-configure:
     image: busybox
@@ -128,7 +132,7 @@ services:
       chain-init:
         condition: service_completed_successfully
       assets:
-        condition: service_started
+        condition: service_healthy
 
   chain:
     <<: *image-main
@@ -146,7 +150,7 @@ services:
     command: "--config /chain/config/config.toml"
     depends_on:
       assets:
-        condition: service_started
+        condition: service_healthy
       keyper-configure:
         condition: service_completed_successfully
       chain-configure:
@@ -173,7 +177,7 @@ services:
       chain:
         condition: service_started
       assets:
-        condition: service_started
+        condition: service_healthy
       keyper-configure:
         condition: service_completed_successfully
     logging: *logging
