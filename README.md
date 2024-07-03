@@ -51,7 +51,7 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 ```shell
 git clone https://github.com/shutter-network/shutter-keyper-deployment.git
 cd shutter-keyper-deployment
-git checkout gnosis/v1.0.1
+git checkout gnosis/v1.1.0
 ```
 
 2. Copy the `example.env` file to `.env` and fill in your information:
@@ -101,10 +101,17 @@ These files will allow you to re-build your Keyper in case of data loss.
 cd shutter-keyper-deployment
 git fetch
 git checkout gnosis/<new-version-tag>
-docker compose down && && docker compose up -d
+docker compose up -d
 ```
 
 ## Version History
+
+### `gnosis/v1.1.0` - `2024-07-03`
+- Use new sequencer contract `0xc5C4b277277A1A8401E0F039dfC49151bA64DC2E`
+- Enable authentication for push metrics
+  - Please note the slight change in the `.env` file (see `example.env`). 
+
+    The properties `PUSHGATEWAY_USER` and `PUSHGATEWAY_PASSWORD` have been added.
 
 ### `gnosis/v1.0.1` - `2024-06-26`
 Fix small typo in `.env` example file
@@ -116,7 +123,7 @@ Initial public release
 ```txt
   Deployer: 0x8A7589135584CECFA5Bd73De02864075232407DD
 -----------------------------------------------------------------------
-  Sequencer: 0xB9e2DD00397a6c69772c7b6Ab5EAf816890084D7
+  Sequencer: 0xc5C4b277277A1A8401E0F039dfC49151bA64DC2E
   ValidatorRegistry: 0xefCC23E71f6bA9B22C4D28F7588141d44496A6D6
   keyperSetManager: 0x7C2337f9bFce19d8970661DA50dE8DD7d3D34abb
   keyBroadcastContract: 0x626dB87f9a9aC47070016A50e802dd5974341301

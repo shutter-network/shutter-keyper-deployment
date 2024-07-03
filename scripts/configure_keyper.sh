@@ -1,6 +1,6 @@
 #!/usr/bin/env ash
 
-set -eux
+set -eu
 
 [[ -f /assets/variables.env ]] && . /assets/variables.env || (echo "Missing variables file (/assets/variables), assets container missing?"; exit 1)
 
@@ -24,7 +24,6 @@ sed -i "/^DeploymentDir/c\DeploymentDir = \"\"  # unused" $CFG
 sed -i "/^EthereumURL/c\EthereumURL = \"${SHUTTER_GNOSIS_NODE_ETHEREUMURL}\"" $CFG
 sed -i "/^KeyperSetManager/c\KeyperSetManager = \"${_ASSETS_KEYPER_SET_MANAGER}\"" $CFG
 sed -i "/^KeyBroadcastContract/c\KeyBroadcastContract = \"${_ASSETS_KEY_BROADCAST_CONTRACT}\"" $CFG
-sed -i "/^EonKeyPublish/c\EonKeyPublish = \"${_ASSETS_EON_KEY_PUBLISH}\"" $CFG
 sed -i "/^Sequencer/c\Sequencer = \"${_ASSETS_SEQUENCER}\"" $CFG
 sed -i "/^ValidatorRegistry/c\ValidatorRegistry = \"${_ASSETS_VALIDATOR_REGISTRY}\"" $CFG
 sed -i "/^DiscoveryNamespace/c\DiscoveryNamespace = \"${_ASSETS_DISCOVERY_NAME_PREFIX}-${_ASSETS_INSTANCE_ID}\"" $CFG
