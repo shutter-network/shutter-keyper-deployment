@@ -1,6 +1,6 @@
 #!/usr/bin/env ash
 
-set -eux
+set -eu
 
 [[ -f /assets/variables.env ]] && . /assets/variables.env || (echo "Missing variables file (/assets/variables), assets container missing?"; exit 1)
 

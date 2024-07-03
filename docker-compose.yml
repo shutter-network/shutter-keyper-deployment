@@ -49,7 +49,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - ./data/db:/var/lib/postgresql/data
-      - ./scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh
+      - ./scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh:ro
     healthcheck:
       test: pg_isready -U postgres
       start_period: "30s"
@@ -109,7 +109,7 @@ services:
     volumes_from:
       - assets:ro
     volumes:
-      - ./scripts/configure_keyper.sh:/configure_keyper.sh
+      - ./scripts/configure_keyper.sh:/configure_keyper.sh:ro
       - ./data:/data
       - ./config:/config
     depends_on:
@@ -125,7 +125,7 @@ services:
     volumes_from:
       - assets:ro
     volumes:
-      - ./scripts/configure_shuttermint.sh:/configure_shuttermint.sh
+      - ./scripts/configure_shuttermint.sh:/configure_shuttermint.sh:ro
       - ./data:/data
     depends_on:
       chain-init:
@@ -188,9 +188,16 @@ services:
     environment:
       KEYPER_NAME:
       PUSHGATEWAY_URL:
-    ports:
-      - 9111:9111
+    volumes_from:
+      - assets:ro
     volumes:
-      - ./config_static/vmagent.yaml:/config/vmagent.yml
-    command: "-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL} -pushmetrics.extraLabel='deployment=gnosis'"
+      - ./config_static/vmagent.yaml:/config/vmagent.yml:ro
+      - ./scripts/export-assets-vars.sh:/export-assets-vars.sh:ro
+    entrypoint:
+      - "/export-assets-vars.sh"
+      - "/vmagent-prod"
+    command: '-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL} -remoteWrite.basicAuth.username="${PUSHGATEWAY_USERNAME}" -remoteWrite.basicAuth.password="${PUSHGATEWAY_PASSWORD}"'
+    depends_on:
+      assets:
+        condition: service_healthy
     logging: *logging
