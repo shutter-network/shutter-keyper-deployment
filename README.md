@@ -51,7 +51,7 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 ```shell
 git clone https://github.com/shutter-network/shutter-keyper-deployment.git
 cd shutter-keyper-deployment
-git checkout gnosis/v1.1.0
+git checkout gnosis/v1.2.0
 ```
 
 2. Copy the `example.env` file to `.env` and fill in your information:
@@ -105,6 +105,11 @@ docker compose up -d
 ```
 
 ## Version History
+
+### `gnosis/v1.2.0` - `2024-07-16`
+- Add minimal reorg resistance / replace data from reorged block
+- Optimization on decryption key message validation
+- Decrypt at least one transaction if possible (even if it's > encrypted gas limit)
 
 ### `gnosis/v1.1.0` - `2024-07-03`
 - Use new sequencer contract `0xc5C4b277277A1A8401E0F039dfC49151bA64DC2E`
