@@ -4,7 +4,7 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/rolling-shutter:gnosis-v1.2.0
+  image: ghcr.io/shutter-network/rolling-shutter:gnosis-v1.2.1b5
 
 x-image-assets: &image-assets
   image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1v2
@@ -30,6 +30,7 @@ x-shutter-environment: &shutter-environment
   #- SHUTTER_GNOSIS_CONTRACTS_VALIDATORREGISTRY= - set via config script
   #- SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES= - set via config script
   - SHUTTER_P2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/23003
+  - SHUTTER_P2P_ADVERTISEADDRESSES=/ip4/${PUBLIC_IP}/tcp/23003
   #- SHUTTER_P2P_DISCOVERYNAMESPACE= - set via config script
   - SHUTTER_SHUTTERMINT_SHUTTERMINTURL=http://chain:26657
   #- SHUTTER_SHUTTERMINT_DKGPHASELENGTH= - set via config script
