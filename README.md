@@ -51,7 +51,7 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 ```shell
 git clone https://github.com/shutter-network/shutter-keyper-deployment.git
 cd shutter-keyper-deployment
-git checkout gnosis/v1.2.0
+git checkout gnosis/v1.2.1
 ```
 
 2. Copy the `example.env` file to `.env` and fill in your information:
@@ -105,6 +105,11 @@ docker compose up -d
 ```
 
 ## Version History
+
+### `gnosis/v1.2.1` - `2024-07-26`
+- Improved handling of reorgs
+- Improvements to libp2p connection handling
+- Additional metrics to gain better insight into network health  
 
 ### `gnosis/v1.2.0` - `2024-07-16`
 - Add minimal reorg resistance / replace data from reorged block
