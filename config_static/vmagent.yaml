@@ -8,6 +8,7 @@ scrape_configs:
         labels:
           instance: "%{KEYPER_NAME}"
           deployment: "%{_ASSETS_VERSION}"
+          deployment_type: "shutter-compose"
   - job_name: 'shuttermint'
     metrics_path: /
     static_configs:
@@ -15,9 +16,11 @@ scrape_configs:
         labels:
           instance: "%{KEYPER_NAME}"
           deployment: "%{_ASSETS_VERSION}"
+          deployment_type: "shutter-compose"
   - job_name: 'vmagent'
     static_configs:
       - targets: ["localhost:8429"]
         labels:
           instance: "%{KEYPER_NAME}"
           deployment: "%{_ASSETS_VERSION}"
+          deployment_type: "shutter-compose"
