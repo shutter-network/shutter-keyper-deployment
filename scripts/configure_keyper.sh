@@ -1,13 +1,35 @@
 #!/usr/bin/env ash
 
-set -eu
+set -euo pipefail
 
 [[ -f /assets/variables.env ]] && . /assets/variables.env || (echo "Missing variables file (/assets/variables), assets container missing?"; exit 1)
 
 SOURCE=/config/generated.toml
 CFG=/config/keyper.toml
 
+# Save eth address, peer identity, p2p key and encryption key from existing config
+if [[ -f "$CFG" ]]; then
+  _ETH_ADDRESS=$(grep -e "^# Ethereum address:" $CFG || true)
+  _PEER_ID=$(grep -e "^# Peer identity:" $CFG || true)
+  _P2P_KEY=$(grep -e "^P2PKey =" $CFG || true)
+  _ENCRYPTION_KEY=$(grep -e "^EncryptionKey =" $CFG || true)
+fi
+
 mv "$SOURCE" "$CFG"
+
+# Reapply saved values
+if [[ -n "${_ETH_ADDRESS}" ]]; then
+  sed -i "/^# Ethereum address/c\\${_ETH_ADDRESS}" $CFG
+fi
+if [[ -n "${_PEER_ID}" ]]; then
+  sed -i "/^# Peer identity/c\\${_PEER_ID}" $CFG
+fi
+if [[ -n "${_P2P_KEY}" ]]; then
+  sed -i "/^P2PKey = /c\\${_P2P_KEY}" $CFG
+fi
+if [[ -n "${_ENCRYPTION_KEY}" ]]; then
+  sed -i "/^EncryptionKey = /c\\${_ENCRYPTION_KEY}" $CFG
+fi
 
 # Values set from assets container and compose env varibles
 sed -i "/^InstanceID/c\InstanceID = ${_ASSETS_INSTANCE_ID}" $CFG
