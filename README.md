@@ -106,6 +106,11 @@ docker compose up -d
 
 ## Version History
 
+### `gnosis/2024.08.1` - `2024-08-23`
+- Switch to time based release versions in this repo
+- Update to Gnosis Keyper v1.2.3
+- Fix a bug with config file handling
+
 ### `gnosis/v1.2.1` - `2024-07-26`
 - Improved handling of reorgs
 - Improvements to libp2p connection handling
