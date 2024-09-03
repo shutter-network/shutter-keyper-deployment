@@ -50,7 +50,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - ./data/db:/var/lib/postgresql/data
-      - ./scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh:ro
+      - ./_container_scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh:ro
     healthcheck:
       test: pg_isready -U postgres
       start_period: "30s"
@@ -110,7 +110,7 @@ services:
     volumes_from:
       - assets:ro
     volumes:
-      - ./scripts/configure_keyper.sh:/configure_keyper.sh:ro
+      - ./_container_scripts/configure_keyper.sh:/configure_keyper.sh:ro
       - ./data:/data
       - ./config:/config
     depends_on:
@@ -126,7 +126,7 @@ services:
     volumes_from:
       - assets:ro
     volumes:
-      - ./scripts/configure_shuttermint.sh:/configure_shuttermint.sh:ro
+      - ./_container_scripts/configure_shuttermint.sh:/configure_shuttermint.sh:ro
       - ./data:/data
     depends_on:
       chain-init:
@@ -199,7 +199,7 @@ services:
       - assets:ro
     volumes:
       - ./config_static/vmagent.yaml:/config/vmagent.yml:ro
-      - ./scripts/export-assets-vars.sh:/export-assets-vars.sh:ro
+      - ./_container_scripts/export-assets-vars.sh:/export-assets-vars.sh:ro
     entrypoint:
       - "/export-assets-vars.sh"
       - "/vmagent-prod"
