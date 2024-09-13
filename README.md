@@ -54,7 +54,7 @@ cd shutter-keyper-deployment
 git checkout gnosis/v1.2.1
 ```
 
-2. Copy the `example.env` file to `.env` and fill in your information:
+2. Copy the `example-mainnet.env`(*) file to `.env` and fill in your information:
    - **Required values**
      - Your Ethereum account key (hex-encoded *without* `0x` prefix): `SIGNING_KEY`
 
@@ -76,6 +76,8 @@ git checkout gnosis/v1.2.1
        - Define the target(s) for the pushgateway with `PUSHGATEWAY_URL` (multiple targets can be separated by commas).
          
          The default value points to a pushgateway operated by the Shutter Network team. To gain access please ask for credentials in the Shutter Network Discourse forum.     
+
+> *) **NOTE**: The `example-mainnet.env` file is a template for Gnosis mainnet deployment. If you want to deploy a Keyper for the Chiado testnet instead, use the `example-chiado.env` file.
 
 ## Running
 
@@ -106,10 +108,11 @@ docker compose up -d
 
 ## Version History
 
-### `gnosis/2024.08.1` - `2024-08-23`
+### `gnosis/2024.09.1` - `2024-09-05`
 - Switch to time based release versions in this repo
 - Update to Gnosis Keyper v1.2.3
 - Fix a bug with config file handling
+- Add a script to create an export bundle that can be imported into the new DAppNode Keyper Pacakge
 
 ### `gnosis/v1.2.1` - `2024-07-26`
 - Improved handling of reorgs

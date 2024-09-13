@@ -4,10 +4,10 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ghcr.io/shutter-network/rolling-shutter:gnosis-v1.2.3
+  image: ${SHUTTER_IMAGE_ROLLING_SHUTTER:-ghcr.io/shutter-network/rolling-shutter:gnosis-v1.2.3}
 
 x-image-assets: &image-assets
-  image: ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1v2
+  image: ${SHUTTER_IMAGE_ASSETS:-ghcr.io/shutter-network/assets:shutter-gnosis-1000-set-1v2}
 
 x-image-metrics: &image-metrics
   image: victoriametrics/vmagent:v1.101.0
@@ -203,7 +203,7 @@ services:
     entrypoint:
       - "/export-assets-vars.sh"
       - "/vmagent-prod"
-    command: '-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL} -remoteWrite.basicAuth.username="${PUSHGATEWAY_USERNAME}" -remoteWrite.basicAuth.password="${PUSHGATEWAY_PASSWORD}"'
+    command: '-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL:-https://keyperingest.metrics.shutter.network/api/v1/write} -remoteWrite.basicAuth.username="${PUSHGATEWAY_USERNAME:-NOT_A_VALID_USER}" -remoteWrite.basicAuth.password="${PUSHGATEWAY_PASSWORD:-NOT_A_VALID_PASSWORD}"'
     depends_on:
       assets:
         condition: service_healthy
