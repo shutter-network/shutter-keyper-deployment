@@ -18,16 +18,16 @@ fi
 mv "$SOURCE" "$CFG"
 
 # Reapply saved values
-if [[ -n "${_ETH_ADDRESS}" ]]; then
+if [[ -n "${_ETH_ADDRESS:-}" ]]; then
   sed -i "/^# Ethereum address/c\\${_ETH_ADDRESS}" $CFG
 fi
-if [[ -n "${_PEER_ID}" ]]; then
+if [[ -n "${_PEER_ID:-}" ]]; then
   sed -i "/^# Peer identity/c\\${_PEER_ID}" $CFG
 fi
-if [[ -n "${_P2P_KEY}" ]]; then
+if [[ -n "${_P2P_KEY:-}" ]]; then
   sed -i "/^P2PKey = /c\\${_P2P_KEY}" $CFG
 fi
-if [[ -n "${_ENCRYPTION_KEY}" ]]; then
+if [[ -n "${_ENCRYPTION_KEY:-}" ]]; then
   sed -i "/^EncryptionKey = /c\\${_ENCRYPTION_KEY}" $CFG
 fi
 
