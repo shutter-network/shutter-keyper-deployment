@@ -44,7 +44,7 @@ x-shuttermint-environment: &shuttermint-environment
 
 services:
   db:
-    image: postgres
+    image: postgres:16
     restart: always
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
