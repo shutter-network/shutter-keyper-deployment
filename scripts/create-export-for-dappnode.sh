@@ -49,10 +49,10 @@ echo -e "${B}[3/5] Resuming services...${DEF}"
 docker compose unpause || true
 
 echo -e "${Y}[4/5] Compressing archive...${DEF}"
-docker run --rm -v "${WORKDIR}:/workdir" -v "${SCRIPT_DIR}/../data:/data" alpine:3.14 ash -c "apk --no-cache add xz && tar -caf /data/backups/${ARCHIVE_NAME} -C /workdir ." > /dev/null 2>&1
+docker run --rm -it -v "${WORKDIR}:/workdir" -v "${SCRIPT_DIR}/../data:/data" alpine:3.20.1 ash -c "apk -q --no-progress --no-cache add xz pv && tar -cf - -C /workdir . | pv -petabs \$(du -sb /workdir | cut -f 1) | xz -zq > /data/backups/${ARCHIVE_NAME}"
 
 echo -e "${B}[5/5] Cleaning up...${DEF}"
-#rm -rf "$WORKDIR"
+rm -rf "$WORKDIR"
 
 echo -e "${G}Done, export package created at ${B}data/backups/${ARCHIVE_NAME}${DEF}"
 
