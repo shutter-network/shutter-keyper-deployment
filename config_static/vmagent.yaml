@@ -6,18 +6,24 @@ scrape_configs:
     static_configs:
       - targets: ["keyper:9100"]
         labels:
-          instance: "%{KEYPER_NAME}"
+          instance: "kpr-%{KEYPER_NAME}"
           deployment: "%{_ASSETS_VERSION}"
+          deployment_type: "shutter-compose"
+          network: "%{_ASSETS_NETWORK}"
   - job_name: 'shuttermint'
     metrics_path: /
     static_configs:
       - targets: ["chain:26660"]
         labels:
-          instance: "%{KEYPER_NAME}"
+          instance: "kpr-%{KEYPER_NAME}"
           deployment: "%{_ASSETS_VERSION}"
+          deployment_type: "shutter-compose"
+          network: "%{_ASSETS_NETWORK}"
   - job_name: 'vmagent'
     static_configs:
       - targets: ["localhost:8429"]
         labels:
-          instance: "%{KEYPER_NAME}"
+          instance: "kpr-%{KEYPER_NAME}"
           deployment: "%{_ASSETS_VERSION}"
+          deployment_type: "shutter-compose"
+          network: "%{_ASSETS_NETWORK}"
