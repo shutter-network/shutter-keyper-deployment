@@ -51,7 +51,7 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 ```shell
 git clone https://github.com/shutter-network/shutter-keyper-deployment.git
 cd shutter-keyper-deployment
-git checkout gnosis/v1.2.1
+git checkout gnosis/2024.11.1
 ```
 
 2. Copy the `example-mainnet.env`(*) file to `.env` and fill in your information:
@@ -108,11 +108,12 @@ docker compose up -d
 
 ## Version History
 
-### `gnosis/2024.09.1` - `2024-09-05`
-- Switch to time based release versions in this repo
-- Update to Gnosis Keyper v1.2.3
+### `gnosis/2024.11.1` - `2024-11-06`
+- Switch to time based version tags in this repo
+- Update to Gnosis Keyper v1.2.4
 - Fix a bug with config file handling
 - Add a script to create an export bundle that can be imported into the new DAppNode Keyper Pacakge
+- Support libp2p floodsub protocol for improved network connectivity with shutterized Gnosis validators 
 
 ### `gnosis/v1.2.1` - `2024-07-26`
 - Improved handling of reorgs
