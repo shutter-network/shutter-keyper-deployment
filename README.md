@@ -110,7 +110,7 @@ docker compose up -d
 
 ### `gnosis/2024.11.1` - `2024-11-06`
 - Switch to time based version tags in this repo
-- Update to Gnosis Keyper v1.2.4
+- Update to Gnosis Keyper v1.2.5
 - Fix a bug with config file handling
 - Add a script to create an export bundle that can be imported into the new DAppNode Keyper Pacakge
 - Support libp2p floodsub protocol for improved network connectivity with shutterized Gnosis validators 
