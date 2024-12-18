@@ -33,21 +33,16 @@ fi
 
 # Values set from assets container and compose env varibles
 sed -i "/^InstanceID/c\InstanceID = ${_ASSETS_INSTANCE_ID}" $CFG
+sed -i "/^HTTPEnabled/c\HTTPEnabled = ${_ASSETS_HTTP_ENABLED}" $CFG
 sed -i "/^DatabaseURL/c\DatabaseURL = \"${SHUTTER_DATABASEURL}\"" $CFG
-sed -i "/^BeaconAPIURL/c\BeaconAPIURL = \"${SHUTTER_BEACONAPIURL}\"" $CFG
 sed -i "/^MaxNumKeysPerMessage/c\MaxNumKeysPerMessage = ${_ASSETS_MAX_NUM_KEYS_PER_MESSAGE}" $CFG
-sed -i "/^EncryptedGasLimit/c\EncryptedGasLimit = ${_ASSETS_ENCRYPTED_GAS_LIMIT}" $CFG
-sed -i "/^MaxTxPointerAge/c\MaxTxPointerAge =  ${SHUTTER_GNOSIS_MAXTXPOINTERAGE}" $CFG
-sed -i "/^GenesisSlotTimestamp/c\GenesisSlotTimestamp = ${_ASSETS_GENESIS_SLOT_TIMESTAMP}" $CFG
 sed -i "/^SyncStartBlockNumber/c\SyncStartBlockNumber = ${_ASSETS_SYNC_START_BLOCK_NUMBER}" $CFG
-sed -i "/^PrivateKey/c\PrivateKey = \"${SHUTTER_GNOSIS_NODE_PRIVATEKEY}\"" $CFG
-sed -i "/^ContractsURL/c\ContractsURL = \"${SHUTTER_GNOSIS_NODE_CONTRACTSURL}\"" $CFG
+sed -i "/^PrivateKey/c\PrivateKey = \"${SHUTTER_CHAIN_NODE_PRIVATEKEY}\"" $CFG
 sed -i "/^DeploymentDir/c\DeploymentDir = \"\"  # unused" $CFG
-sed -i "/^EthereumURL/c\EthereumURL = \"${SHUTTER_GNOSIS_NODE_ETHEREUMURL}\"" $CFG
+sed -i "/^EthereumURL/c\EthereumURL = \"${SHUTTER_CHAIN_NODE_ETHEREUMURL}\"" $CFG
 sed -i "/^KeyperSetManager/c\KeyperSetManager = \"${_ASSETS_KEYPER_SET_MANAGER}\"" $CFG
 sed -i "/^KeyBroadcastContract/c\KeyBroadcastContract = \"${_ASSETS_KEY_BROADCAST_CONTRACT}\"" $CFG
-sed -i "/^Sequencer/c\Sequencer = \"${_ASSETS_SEQUENCER}\"" $CFG
-sed -i "/^ValidatorRegistry/c\ValidatorRegistry = \"${_ASSETS_VALIDATOR_REGISTRY}\"" $CFG
+sed -i "/^ShutterRegistry/c\ShutterRegistry = \"${_ASSETS_SHUTTERREGISTRY}\"" $CFG
 sed -i "/^DiscoveryNamespace/c\DiscoveryNamespace = \"${_ASSETS_DISCOVERY_NAME_PREFIX}-${_ASSETS_INSTANCE_ID}\"" $CFG
 sed -i "/^ShuttermintURL/c\ShuttermintURL = \"${SHUTTER_SHUTTERMINT_SHUTTERMINTURL}\"" $CFG
 sed -i "/^ValidatorPublicKey/c\ValidatorPublicKey = \"$(cat /data/chain/config/priv_validator_pubkey.hex)\"" $CFG

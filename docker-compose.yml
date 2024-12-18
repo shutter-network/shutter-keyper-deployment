@@ -4,7 +4,7 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ${SHUTTER_IMAGE_ROLLING_SHUTTER:-ghcr.io/shutter-network/keyper:v1.2.5}
+  image: ${SHUTTER_IMAGE_ROLLING_SHUTTER:-ghcr.io/shutter-network/unverified-dev-build-do-not-use:branch-shutter-service-28925}
 
 x-image-assets: &image-assets
   image: ${SHUTTER_IMAGE_ASSETS:-ghcr.io/shutter-network/assets:shutter-gnosis-1000-set1.3}
@@ -15,19 +15,14 @@ x-image-metrics: &image-metrics
 x-shutter-environment: &shutter-environment
   #- SHUTTER_INSTANCEID= - set via config script
   - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
-  - SHUTTER_BEACONAPIURL=${GNOSIS_BEACON_RPC_HTTP_URL}
+  #- SHUTTER_HTTPENABLED= - set via config script
   #- SHUTTER_MAXNUMKEYSPERMESSAGE= - set via config script
-  #- SHUTTER_GNOSIS_ENCRYPTEDGASLIMIT= - set via config script
-  - SHUTTER_GNOSIS_MAXTXPOINTERAGE=${MAXTXPOINTERAGE}
-  #- SHUTTER_GNOSIS_GENESISSLOTTIMESTAMP= - set via config script
-  #- SHUTTER_GNOSIS_SYNCSTARTBLOCKNUMBER= - set via config script
-  - SHUTTER_GNOSIS_NODE_PRIVATEKEY=${SIGNING_KEY}
-  - SHUTTER_GNOSIS_NODE_CONTRACTSURL=${GNOSIS_EXECUTION_RPC_HTTP_URL}
-  - SHUTTER_GNOSIS_NODE_ETHEREUMURL=${GNOSIS_EXECUTION_RPC_WS_URL}
-  #- SHUTTER_GNOSIS_CONTRACTS_KEYPERSETMANAGER= - set via config script
-  #- SHUTTER_GNOSIS_CONTRACTS_KEYBROADCASTCONTRACT= - set via config script
-  #- SHUTTER_GNOSIS_CONTRACTS_SEQUENCER= - set via config script
-  #- SHUTTER_GNOSIS_CONTRACTS_VALIDATORREGISTRY= - set via config script
+  #- SHUTTER_CHAIN_SYNCSTARTBLOCKNUMBER= - set via config script
+  - SHUTTER_CHAIN_NODE_PRIVATEKEY=${SIGNING_KEY}
+  - SHUTTER_CHAIN_NODE_ETHEREUMURL=${CHAIN_EXECUTION_RPC_WS_URL}
+  #- SHUTTER_CHAIN_CONTRACTS_KEYPERSETMANAGER= - set via config script
+  #- SHUTTER_CHAIN_CONTRACTS_KEYBROADCASTCONTRACT= - set via config script
+  #- SHUTTER_CHAIN_CONTRACTS_SHUTTERREGISTRY= - set via config script
   #- SHUTTER_P2P_CUSTOMBOOTSTRAPADDRESSES= - set via config script
   - SHUTTER_P2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/23003,/ip4/0.0.0.0/udp/23003/quic-v1
   - SHUTTER_P2P_ADVERTISEADDRESSES=/ip4/${PUBLIC_IP}/tcp/23003,/ip4/${PUBLIC_IP}/udp/23003/quic-v1
@@ -65,7 +60,7 @@ services:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
-      - gnosiskeyper
+      - shutterservice
     environment: *shutter-environment
     volumes:
       - ./config:/config
@@ -75,7 +70,7 @@ services:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
-      - gnosiskeyper
+      - shutterservice
     environment: *shutter-environment
     volumes:
       - ./config:/config
@@ -168,7 +163,7 @@ services:
     restart: always
     entrypoint:
       - /rolling-shutter
-      - gnosiskeyper
+      - shutterservice
     command: "--config /config/keyper.toml"
     volumes_from:
       - assets:ro
