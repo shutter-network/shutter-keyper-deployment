@@ -1,14 +1,12 @@
-# Gnosis Keyper
+# Shutter Service Keyper
 
-This repository contains the docker compose configuration to run a gnosis Keyper.
+This repository contains the docker compose configuration to run a shutter service keyper.
 
 ## Prerequisites
 
-### Gnosis beacon and execution clients
+### Chain execution clients
 
-Keypers are required to have access to a Gnosis Chain [consensus client API](https://ethereum.github.io/beacon-APIs/).
-If you need to host these, please refer to https://docs.gnosischain.com/node. Please note, that additional system requirements to run gnosis chain nodes
-are not part of the section below and need to be considered explicitly.
+Keypers are required to have access to a the Chain's execution client API, where the shutter registry and keyperset manager contracts are deployed.
 
 ### System requirements
 
@@ -51,10 +49,10 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 ```shell
 git clone https://github.com/shutter-network/shutter-keyper-deployment.git
 cd shutter-keyper-deployment
-git checkout gnosis/2024.11.1
+git checkout shutter-service
 ```
 
-2. Copy the `example-mainnet.env`(*) file to `.env` and fill in your information:
+2. Copy the `example-service.env`(*) file to `.env` and fill in your information:
    - **Required values**
      - Your Ethereum account key (hex-encoded *without* `0x` prefix): `SIGNING_KEY`
 
@@ -65,10 +63,7 @@ git checkout gnosis/2024.11.1
      - Your **public** IP address: `PUBLIC_IP`
 
        It is important that this is the address your node is reachable under from the internet since it is used for the P2P network between the nodes.
-     - A Gnosis consensus / beacon chain API endpoint: `GNOSIS_BEACON_RPC_HTTP_URL`
-     - A Gnosis execution JSON RPC API endpoint (HTTP): `GNOSIS_EXECUTION_RPC_HTTP_URL`
-     - A Gnosis execution JSON RPC API endpoint (WebSocket): `GNOSIS_EXECUTION_RPC_WS_URL`
-     - A Gnosis execution JSON RPC API endpoint (WebSocket): `GNOSIS_EXECUTION_RPC_WS_URL`
+     - A Chain execution JSON RPC API endpoint (WebSocket): `CHAIN_EXECUTION_RPC_WS_URL`
    - Metrics (optional):
      - To enable metrics, set `METRICS_ENABLED` to `true` (the default)
      - Define the interface the metrics ports (`:9100` and `:26660`) should be exposed on with `METRICS_INTERFACE` (defaults to `0.0.0.0`, i.e. the public interface)
@@ -102,48 +97,8 @@ These files will allow you to re-build your Keyper in case of data loss.
 ```shell
 cd shutter-keyper-deployment
 git fetch
-git checkout gnosis/<new-version-tag>
+git checkout shutter-service/<new-version-tag>
 docker compose up -d
 ```
 
 ## Version History
-
-### `gnosis/2024.11.1` - `2024-11-06`
-- Switch to time based version tags in this repo
-- Update to Gnosis Keyper v1.2.5
-- Fix a bug with config file handling
-- Add a script to create an export bundle that can be imported into the new DAppNode Keyper Pacakge
-- Support libp2p floodsub protocol for improved network connectivity with shutterized Gnosis validators 
-
-### `gnosis/v1.2.1` - `2024-07-26`
-- Improved handling of reorgs
-- Improvements to libp2p connection handling
-- Additional metrics to gain better insight into network health  
-
-### `gnosis/v1.2.0` - `2024-07-16`
-- Add minimal reorg resistance / replace data from reorged block
-- Optimization on decryption key message validation
-- Decrypt at least one transaction if possible (even if it's > encrypted gas limit)
-
-### `gnosis/v1.1.0` - `2024-07-03`
-- Use new sequencer contract `0xc5C4b277277A1A8401E0F039dfC49151bA64DC2E`
-- Enable authentication for push metrics
-  - Please note the slight change in the `.env` file (see `example.env`). 
-
-    The properties `PUSHGATEWAY_USER` and `PUSHGATEWAY_PASSWORD` have been added.
-
-### `gnosis/v1.0.1` - `2024-06-26`
-Fix small typo in `.env` example file
-
-### `gnosis/v1.0.0` - `2024-06-26`
-Initial public release
-
-### Contract Deployments
-```txt
-  Deployer: 0x8A7589135584CECFA5Bd73De02864075232407DD
------------------------------------------------------------------------
-  Sequencer: 0xc5C4b277277A1A8401E0F039dfC49151bA64DC2E
-  ValidatorRegistry: 0xefCC23E71f6bA9B22C4D28F7588141d44496A6D6
-  keyperSetManager: 0x7C2337f9bFce19d8970661DA50dE8DD7d3D34abb
-  keyBroadcastContract: 0x626dB87f9a9aC47070016A50e802dd5974341301
-```
