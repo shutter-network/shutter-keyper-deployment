@@ -60,7 +60,7 @@ services:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
-      - shutterservice
+      - shutterservicekeyper
     environment: *shutter-environment
     volumes:
       - ./config:/config
@@ -70,7 +70,7 @@ services:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
-      - shutterservice
+      - shutterservicekeyper
     environment: *shutter-environment
     volumes:
       - ./config:/config
@@ -163,7 +163,7 @@ services:
     restart: always
     entrypoint:
       - /rolling-shutter
-      - shutterservice
+      - shutterservicekeyper
     command: "--config /config/keyper.toml"
     volumes_from:
       - assets:ro
