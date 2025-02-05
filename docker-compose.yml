@@ -88,7 +88,7 @@ services:
       - chain
     environment: *shuttermint-environment
     volumes_from:
-      - assets:ro
+      - assets-api:ro
     volumes:
       - ./data/chain:/chain
     command: "init --root /chain --genesis-keyper ${GENESIS_KEYPER} --blocktime ${SM_BLOCKTIME} --listen-address tcp://0.0.0.0:26657 --role validator"
@@ -103,7 +103,7 @@ services:
     command: "./configure_keyper.sh"
     environment: *shutter-environment
     volumes_from:
-      - assets:ro
+      - assets-api:ro
     volumes:
       - ./_container_scripts/configure_keyper.sh:/configure_keyper.sh:ro
       - ./data:/data
@@ -119,7 +119,7 @@ services:
     command: "./configure_shuttermint.sh"
     environment: *shuttermint-environment
     volumes_from:
-      - assets:ro
+      - assets-api:ro
     volumes:
       - ./_container_scripts/configure_shuttermint.sh:/configure_shuttermint.sh:ro
       - ./data:/data
@@ -139,7 +139,7 @@ services:
       - "${PUBLIC_IP}:27656:26656"
       - "${METRICS_LISTEN_IP}:27660:26660"
     volumes_from:
-      - assets:ro
+      - assets-api:ro
     volumes:
       - ./data/chain:/chain
     command: "--config /chain/config/config.toml"
@@ -166,7 +166,7 @@ services:
       - shutterservicekeyper
     command: "--config /config/keyper.toml"
     volumes_from:
-      - assets:ro
+      - assets-api:ro
     volumes:
       - ./config:/config
     ports:
@@ -191,7 +191,7 @@ services:
       KEYPER_NAME:
       PUSHGATEWAY_URL:
     volumes_from:
-      - assets:ro
+      - assets-api:ro
     volumes:
       - ./config_static/vmagent.yaml:/config/vmagent.yml:ro
       - ./_container_scripts/export-assets-vars.sh:/export-assets-vars.sh:ro
