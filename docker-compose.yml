@@ -14,7 +14,7 @@ x-image-metrics: &image-metrics
 
 x-shutter-environment: &shutter-environment
   #- SHUTTER_INSTANCEID= - set via config script
-  - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
+  - SHUTTER_DATABASEURL=postgres://postgres@db-api:5432/keyper
   #- SHUTTER_HTTPENABLED= - set via config script
   #- SHUTTER_MAXNUMKEYSPERMESSAGE= - set via config script
   #- SHUTTER_CHAIN_SYNCSTARTBLOCKNUMBER= - set via config script
