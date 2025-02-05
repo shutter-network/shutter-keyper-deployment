@@ -38,7 +38,7 @@ x-shuttermint-environment: &shuttermint-environment
   - METRICS_ENABLED=${METRICS_ENABLED}
 
 services:
-  db:
+  db-api:
     image: postgres:16
     restart: always
     environment:
@@ -52,11 +52,11 @@ services:
       start_interval: "1s"
     logging: *logging
 
-  assets:
+  assets-api:
     <<: *image-assets
     stop_grace_period: "0s"
 
-  keyper-create-config:
+  keyper-create-config-api:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
@@ -66,7 +66,7 @@ services:
       - ./config:/config
     command: "generate-config --output /config/generated.toml --force"
 
-  keyper-initdb:
+  keyper-initdb-api:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
@@ -76,12 +76,12 @@ services:
       - ./config:/config
     command: "initdb --config /config/generated.toml"
     depends_on:
-      db:
+      db-api:
         condition: service_healthy
-      keyper-create-config:
+      keyper-create-config-api:
         condition: service_completed_successfully
 
-  chain-init:
+  chain-init-api:
     <<: *image-main
     entrypoint:
       - /rolling-shutter
@@ -93,12 +93,12 @@ services:
       - ./data/chain:/chain
     command: "init --root /chain --genesis-keyper ${GENESIS_KEYPER} --blocktime ${SM_BLOCKTIME} --listen-address tcp://0.0.0.0:26657 --role validator"
     depends_on:
-      keyper-initdb:
+      keyper-initdb-api:
         condition: service_completed_successfully
-      assets:
+      assets-api:
         condition: service_healthy
 
-  keyper-configure:
+  keyper-configure-api:
     image: busybox
     command: "./configure_keyper.sh"
     environment: *shutter-environment
@@ -109,12 +109,12 @@ services:
       - ./data:/data
       - ./config:/config
     depends_on:
-      chain-init:
+      chain-init-api:
         condition: service_completed_successfully
-      assets:
+      assets-api:
         condition: service_healthy
 
-  chain-configure:
+  chain-configure-api:
     image: busybox
     command: "./configure_shuttermint.sh"
     environment: *shuttermint-environment
@@ -124,20 +124,20 @@ services:
       - ./_container_scripts/configure_shuttermint.sh:/configure_shuttermint.sh:ro
       - ./data:/data
     depends_on:
-      chain-init:
+      chain-init-api:
         condition: service_completed_successfully
-      assets:
+      assets-api:
         condition: service_healthy
 
-  chain:
+  chain-api:
     <<: *image-main
     restart: always
     entrypoint:
       - /rolling-shutter
       - chain
     ports:
-      - "${PUBLIC_IP}:26656:26656"
-      - "${METRICS_LISTEN_IP}:26660:26660"
+      - "${PUBLIC_IP}:27656:26656"
+      - "${METRICS_LISTEN_IP}:27660:26660"
     volumes_from:
       - assets:ro
     volumes:
@@ -150,15 +150,15 @@ services:
       start_period: 20m
       start_interval: 2s
     depends_on:
-      assets:
+      assets-api:
         condition: service_healthy
-      keyper-configure:
+      keyper-configure-api:
         condition: service_completed_successfully
-      chain-configure:
+      chain-configure-api:
         condition: service_completed_successfully
     logging: *logging
 
-  keyper:
+  keyper-api:
     <<: *image-main
     restart: always
     entrypoint:
@@ -170,20 +170,20 @@ services:
     volumes:
       - ./config:/config
     ports:
-      - "${PUBLIC_IP}:23003:23003"
-      - "${METRICS_LISTEN_IP}:9100:9100"
+      - "${PUBLIC_IP}:24003:23003"
+      - "${METRICS_LISTEN_IP}:9200:9100"
     depends_on:
-      db:
+      db-api:
         condition: service_healthy
-      chain:
+      chain-api:
         condition: service_healthy
-      assets:
+      assets-api:
         condition: service_healthy
-      keyper-configure:
+      keyper-configure-api:
         condition: service_completed_successfully
     logging: *logging
 
-  vmagent:
+  vmagent-api:
     profiles: [pushmetrics]
     <<: *image-metrics
     restart: always
@@ -200,6 +200,6 @@ services:
       - "/vmagent-prod"
     command: '-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL:-https://keyperingest.metrics.shutter.network/api/v1/write} -remoteWrite.basicAuth.username="${PUSHGATEWAY_USERNAME:-NOT_A_VALID_USER}" -remoteWrite.basicAuth.password="${PUSHGATEWAY_PASSWORD:-NOT_A_VALID_PASSWORD}"'
     depends_on:
-      assets:
+      assets-api:
         condition: service_healthy
     logging: *logging
