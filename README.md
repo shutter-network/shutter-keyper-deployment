@@ -1,6 +1,6 @@
-# Shutter Service Keyper
+# Shutter API Service Keyper
 
-This repository contains the docker compose configuration to run a shutter service keyper.
+This repository contains the docker compose configuration to run a shutter api service keyper.
 
 ## Prerequisites
 
