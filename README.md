@@ -98,7 +98,7 @@ These files will allow you to re-build your Keyper in case of data loss.
 cd shutter-keyper-deployment
 git fetch
 git checkout shutter-service/<new-version-tag>
-docker compose up -d
+docker compose -p shutter-service-keyper up -d
 ```
 
 ## Version History
