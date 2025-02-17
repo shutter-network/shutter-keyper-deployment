@@ -8,4 +8,4 @@ There are currently two distinct versions, one for the Shutterized Gnosis Chain,
 
 ## [Snapshot Shutter Keyper](https://github.com/shutter-network/shutter-keyper-deployment/tree/snapshot/main)
 
-## [Shutter API Service Keyper](https://github.com/shutter-network/shutter-keyper-deployment/tree/shutter-service)
+## [Shutter API Service Keyper](https://github.com/shutter-network/shutter-keyper-deployment/tree/shutter-api)
