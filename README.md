@@ -49,7 +49,7 @@ Personal monitoring is also possible, but we feel it would be great to have an o
 ```shell
 git clone https://github.com/shutter-network/shutter-keyper-deployment.git
 cd shutter-keyper-deployment
-git checkout shutter-service
+git checkout shutter-api
 ```
 
 2. Copy the `example-service.env`(*) file to `.env` and fill in your information:
