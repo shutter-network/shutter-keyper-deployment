@@ -52,3 +52,4 @@ sed -i "/^CustomBootstrapAddresses/c\CustomBootstrapAddresses = ${_ASSETS_CUSTOM
 sed -i "/^DKGPhaseLength/c\DKGPhaseLength = ${_ASSETS_DKG_PHASE_LENGTH}" $CFG
 sed -i "/^DKGStartBlockDelta/c\DKGStartBlockDelta = ${_ASSETS_DKG_START_BLOCK_DELTA}" $CFG
 sed -i "/^Enabled/c\Enabled = ${SHUTTER_METRICS_ENABLED}" $CFG
+sed -i "/^Port/c\Port = ${SHUTTER_METRICS_PORT}" $CFG

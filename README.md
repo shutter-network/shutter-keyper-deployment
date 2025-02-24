@@ -66,7 +66,7 @@ git checkout shutter-api
      - A Chain execution JSON RPC API endpoint (WebSocket): `CHAIN_EXECUTION_RPC_WS_URL`
    - Metrics (optional):
      - To enable metrics, set `METRICS_ENABLED` to `true` (the default)
-     - Define the interface the metrics ports (`:9100` and `:26660`) should be exposed on with `METRICS_INTERFACE` (defaults to `0.0.0.0`, i.e. the public interface)
+     - Define the interface the metrics ports (`:9200` and `:27660`) should be exposed on with `METRICS_INTERFACE` (defaults to `0.0.0.0`, i.e. the public interface)
      - If you rather not publicly expose the metrics and would like to push metrics instead, uncomment the `COMPOSE_PROFILES=pushmetrics` line and set `METRICS_INTERFACE` to `127.0.0.1`.
        - Define the target(s) for the pushgateway with `PUSHGATEWAY_URL` (multiple targets can be separated by commas).
          
