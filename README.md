@@ -1,6 +1,6 @@
-# Shutter API Service Keyper
+# Shutter API Keyper
 
-This repository contains the docker compose configuration to run a shutter api service keyper.
+This repository contains the docker compose configuration to run a shutter api keyper.
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ cd shutter-keyper-deployment
 git checkout shutter-api
 ```
 
-2. Copy the `example-service.env`(*) file to `.env` and fill in your information:
+2. Copy the `example-api.env`(*) file to `.env` and fill in your information:
    - **Required values**
      - Your Ethereum account key (hex-encoded *without* `0x` prefix): `SIGNING_KEY`
 
@@ -97,8 +97,19 @@ These files will allow you to re-build your Keyper in case of data loss.
 ```shell
 cd shutter-keyper-deployment
 git fetch
-git checkout shutter-service/<new-version-tag>
-docker compose -p shutter-service-keyper up -d
+git checkout shutter-api/<new-version-tag>
+docker compose up -d
 ```
 
 ## Version History
+### `shutter-api-keyper/2025.02.01`
+- initial public release
+
+## Contract Deployments
+```txt
+  Deployer: 0x7D18359c2f49e4aEBc0df761B1152c31DE044e83
+  ---------------------------------------------------
+  RegistryContract: 0x7D18359c2f49e4aEBc0df761B1152c31DE044e83
+  KeysetManagerContract: 0xFaB842d8Ff826E93D31f839AD47218d8c9511cC6
+  KeyBroadcastContract: 0x474079EFa5D93bb48a1cA27Ebbf46d32E273A28b
+```
