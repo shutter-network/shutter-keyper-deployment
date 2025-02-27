@@ -109,7 +109,7 @@ docker compose up -d
 ```txt
   Deployer: 0x7D18359c2f49e4aEBc0df761B1152c31DE044e83
   ---------------------------------------------------
-  RegistryContract: 0x7D18359c2f49e4aEBc0df761B1152c31DE044e83
+  RegistryContract: 0x694e5de9345d39C148DA90e6939A3fd2142267D9
   KeysetManagerContract: 0xFaB842d8Ff826E93D31f839AD47218d8c9511cC6
   KeyBroadcastContract: 0x474079EFa5D93bb48a1cA27Ebbf46d32E273A28b
 ```
