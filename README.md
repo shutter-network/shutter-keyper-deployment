@@ -71,6 +71,9 @@ git checkout shutter-api
        - Define the target(s) for the pushgateway with `PUSHGATEWAY_URL` (multiple targets can be separated by commas).
          
          The default value points to a pushgateway operated by the Shutter Network team. To gain access please ask for credentials in the Shutter Network Discourse forum.     
+     - Logging (optional):
+      - To push logs to loki/vmlogs server, use the `docker-compose.loki.yml` file, which overrides logging.
+      - Define the url for the server to push metrics to, with `LOKI_URL`. Default value points to the logging server operated by Shutter Network Team.
 
 > *) **NOTE**: The `example-mainnet.env` file is a template for Gnosis mainnet deployment. If you want to deploy a Keyper for the Chiado testnet instead, use the `example-chiado.env` file.
 
@@ -113,10 +116,21 @@ git checkout shutter-api/<new-version-tag>
 docker compose up -d
 ```
 
-If using loki push logs then instead on runing `docker compose up -d`, run the following
+If using loki push logs already then instead on runing `docker compose up -d`, run the following
 ```
 docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
+
+## Update to use push logs to loki for the first time
+
+1. Update the environment variables ( or .env) to include the following:
+`LOKI_URL=https://<user_id>:<password>@logs.metrics.shutter.network/insert/loki/api/v1/push`
+
+2. Install docker driver for loki, by the following cmd:
+`docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --grant-all-permissions`
+
+3. Run docker compose with additional configuration file:
+`docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d`
 
 ## Version History
 ### `shutter-api-keyper/2025.02.01`
