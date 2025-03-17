@@ -83,6 +83,13 @@ docker compose up -d
 ```
 
 ### To run with pushing logs to loki
+
+Firstly, it needs loki docker driver installed, which can be done by following command:
+```
+docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --grant-all-permissions
+```
+
+Now, after setting env variable accordingly, to start keyper with push logs enabled, run following command:
 ```
 docker compose -f docker-compose.yml -f docker-compose.loki.yml up
 ```
