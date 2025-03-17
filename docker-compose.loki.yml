@@ -11,4 +11,4 @@ services:
       driver: loki
       options:
         loki-url: ${LOKI_URL}
-        loki-external-labels: keyper_name=${KEYPER_NAME}
+        loki-external-labels: keyper_name=kpr-${KEYPER_NAME}
