@@ -137,7 +137,7 @@ services:
       - /rolling-shutter
       - chain
     ports:
-      - "${PUBLIC_IP}:27656:27656"
+      - "27656:27656"
       - "${METRICS_LISTEN_IP}:27660:27660"
     volumes_from:
       - assets:ro
@@ -171,7 +171,7 @@ services:
     volumes:
       - ./config:/config
     ports:
-      - "${PUBLIC_IP}:24003:24003"
+      - "24003:24003"
       - "${METRICS_LISTEN_IP}:9200:9200"
     depends_on:
       db:
