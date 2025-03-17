@@ -82,6 +82,11 @@ You start your Keyper node by running
 docker compose up -d
 ```
 
+### To run with pushing logs to loki
+```
+docker compose -f docker-compose.yml -f docker-compose.loki.yml up
+```
+
 ## Backups
 
 Once your Keyper is up and running, you should regularly back up the following:
