@@ -91,7 +91,7 @@ docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --gran
 
 Now, after setting env variable accordingly, to start keyper with push logs enabled, run following command:
 ```
-docker compose -f docker-compose.yml -f docker-compose.loki.yml up
+docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Backups
@@ -111,6 +111,11 @@ cd shutter-keyper-deployment
 git fetch
 git checkout shutter-api/<new-version-tag>
 docker compose up -d
+```
+
+If using loki push logs then instead on runing `docker compose up -d`, run the following
+```
+docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Version History
