@@ -6,7 +6,7 @@ This repository contains the docker compose configuration to run a shutter api k
 
 ### Chain execution clients
 
-Keypers are required to have access to a the Chain's execution client API, where the shutter registry and keyperset manager contracts are deployed.
+Keypers are required to have access to the Chain's execution client API, where the shutter registry and keyperset manager contracts are deployed.
 
 ### System requirements
 
@@ -27,14 +27,15 @@ Shutter Network does operate a prometheus compatible monitoring system. See belo
 
 ### Software
 
-- You will need a recent version of `docker` and the `docker compose` cli plugin. 
+- You will need a recent version of `docker` and the `docker compose` cli plugin.
 - For cloning the repository you will need `git`.
 
 The Keyper node is distributed as a docker-compose stack consisting of multiple services. This repository contains all necessary files.
 
-One component is opt-in monitoring, which by default requires opening a port for scrape access to the metrics endpoints, 
-as well as a public IP address that needs to be shared with the Shutter team if you wish to participate in system-wide 
+One component is opt-in monitoring, which by default requires opening a port for scrape access to the metrics endpoints,
+as well as a public IP address that needs to be shared with the Shutter team if you wish to participate in system-wide
 monitoring of the nodes.
+
 If you would rather not open up the metrics endpoints we also provide support for push based monitoring.
 
 See the `Metrics` section in the .env file for more information.
@@ -53,47 +54,62 @@ git checkout shutter-api
 ```
 
 2. Copy the `example-api.env`(*) file to `.env` and fill in your information:
-   - **Required values**
-     - Your Ethereum account key (hex-encoded *without* `0x` prefix): `SIGNING_KEY`
+  - **Required values**
+    - Your Ethereum account key (hex-encoded *without* `0x` prefix): `SIGNING_KEY`
 
-       **IMPORTANT**: Please double-check that you are using the key associated with the address that you provided during the Keyper application process. Otherwise, your Keyper node will not be able to join the network.
-     - A name of your choice for your keyper node: `KEYPER_NAME`
+      **IMPORTANT**: Please double-check that you are using the key associated with the address that you provided during the Keyper application process. Otherwise, your Keyper node will not be able to join the network.
+    - A name of your choice for your keyper node: `KEYPER_NAME`
 
-       (Please use only letters, numbers, and underscores. No spaces or special characters.)
-     - Your **public** IP address: `PUBLIC_IP`
+      (Please use only letters, numbers, and underscores. No spaces or special characters.)
+    - Your **public** IP address: `PUBLIC_IP`
 
-       It is important that this is the address your node is reachable under from the internet since it is used for the P2P network between the nodes.
-     - A Chain execution JSON RPC API endpoint (WebSocket): `CHAIN_EXECUTION_RPC_WS_URL`
-   - Metrics (optional):
-     - To enable metrics, set `METRICS_ENABLED` to `true` (the default)
-     - Define the interface the metrics ports (`:9200` and `:27660`) should be exposed on with `METRICS_INTERFACE` (defaults to `0.0.0.0`, i.e. the public interface)
-     - If you rather not publicly expose the metrics and would like to push metrics instead, uncomment the `COMPOSE_PROFILES=pushmetrics` line and set `METRICS_INTERFACE` to `127.0.0.1`.
-       - Define the target(s) for the pushgateway with `PUSHGATEWAY_URL` (multiple targets can be separated by commas).
-         
-         The default value points to a pushgateway operated by the Shutter Network team. To gain access please ask for credentials in the Shutter Network Discourse forum.     
-     - Logging (optional):
-      - To push logs to loki/vmlogs server, use the `docker-compose.loki.yml` file, which overrides logging.
-      - Define the url for the server to push metrics to, with `LOKI_URL`. Default value points to the logging server operated by Shutter Network Team.
+      It is important that this is the address your node is reachable under from the internet since it is used for the P2P network between the nodes.
+    - A Chain execution JSON RPC API endpoint (WebSocket): `CHAIN_EXECUTION_RPC_WS_URL`
+  - Metrics (optional):
+    - To enable metrics, set `METRICS_ENABLED` to `true` (the default)
+    - Define the interface the metrics ports (`:9200` and `:27660`) should be exposed on with `METRICS_INTERFACE` (defaults to `0.0.0.0`, i.e. the public interface)
+    - If you rather not publicly expose the metrics and would like to push metrics instead, uncomment the `COMPOSE_PROFILES=pushmetrics` line and set `METRICS_INTERFACE` to `127.0.0.1`.
+      - Define the target(s) for the pushgateway with `PUSHGATEWAY_URL` (multiple targets can be separated by commas).
 
-> *) **NOTE**: The `example-mainnet.env` file is a template for Gnosis mainnet deployment. If you want to deploy a Keyper for the Chiado testnet instead, use the `example-chiado.env` file.
+        The default value points to a pushgateway operated by the Shutter Network team. To gain access please ask for credentials in the Shutter Network Discourse forum.
+  - Logging (optional):
+    - To push logs to loki/vmlogs server:
+      - Define the url for the server to push logs to, with `LOKI_URL`. The default value points to the logging server operated by the Shutter Network Team. To gain access please ask for credentials in the Shutter Network Discourse forum.
+      - Use the `docker-compose.loki.yml` file, which overrides logging, as shown under the running and update sections.
 
-## Running
+> **NOTE**: The `example-api.env` file is a template for the Shutter API Keyper deployment on Gnosis Mainnet.
 
-You start your Keyper node by running
+## Setting Up Logging
 
-```
+To enable log pushing to a **Loki/VmLogs server**, follow these steps:
+
+1. **Update `.env` to include Loki logs configuration using the credentials provided by the Shutter team:**
+   ```sh
+   LOKI_URL=https://<user_id>:<password>@logs.metrics.shutter.network/insert/loki/api/v1/push
+   ```
+2. **Install the Loki Docker driver (if not installed):**
+   ```sh
+   docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --grant-all-permissions
+   ```
+
+> **Note:** For **ARM64 hosts**, add `-arm64` to the image tag.
+
+For more details, refer to the [Docker driver client | Grafana Loki documentation](https://grafana.com/docs/loki/latest/send-data/docker-driver/).
+
+
+> **IMPORTANT:** If logging is enabled, make sure to use the correct `docker compose` commands as noted below.
+
+## Running the Keyper Node
+
+### **Without Pushing Logs**
+To start the Keyper node run:
+```sh
 docker compose up -d
 ```
 
-### To run with pushing logs to loki
-
-Firstly, it needs loki docker driver installed, which can be done by following command:
-```
-docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --grant-all-permissions
-```
-
-Now, after setting env variable accordingly, to start keyper with push logs enabled, run following command:
-```
+### **With Log Pushing Enabled**
+> **IMPORTANT:** Logging requires additional configuration steps. Follow the [Logging Setup](#setting-up-logging) section before running the following command:
+```sh
 docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
@@ -107,7 +123,9 @@ Once your Keyper is up and running, you should regularly back up the following:
 
 These files will allow you to re-build your Keyper in case of data loss.
 
-## Updating
+## **Updating**
+
+### **Without Pushing Logs**
 
 ```shell
 cd shutter-keyper-deployment
@@ -116,21 +134,11 @@ git checkout shutter-api/<new-version-tag>
 docker compose up -d
 ```
 
-If using loki push logs already then instead on runing `docker compose up -d`, run the following
-```
+### **Updating with Log Pushing Enabled**
+> **IMPORTANT:** If logging is enabled, ensure you follow the [Logging Setup](#setting-up-logging) section first. Then, use the correct command:
+```sh
 docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
-
-## Update to use push logs to loki for the first time
-
-1. Update the environment variables ( or .env) to include the following:
-`LOKI_URL=https://<user_id>:<password>@logs.metrics.shutter.network/insert/loki/api/v1/push`
-
-2. Install docker driver for loki, by the following cmd:
-`docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --grant-all-permissions`
-
-3. Run docker compose with additional configuration file:
-`docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d`
 
 ## Version History
 ### `shutter-api-keyper/2025.02.01`
