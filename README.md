@@ -6,7 +6,7 @@ This repository contains the docker compose configuration to run a shutter api k
 
 ### Chain execution clients
 
-Keypers are required to have access to the Chain's execution client API, where the shutter registry and keyperset manager contracts are deployed.
+Keypers are required to have access an execution client's JSON RPC API, of the chain, where the shutter registry and keyperset manager contracts are deployed.
 
 ### System requirements
 
@@ -72,7 +72,7 @@ git checkout shutter-api
       - Define the target(s) for the pushgateway with `PUSHGATEWAY_URL` (multiple targets can be separated by commas).
 
         The default value points to a pushgateway operated by the Shutter Network team. To gain access please ask for credentials in the Shutter Network Discourse forum.
-  - Logging (optional):
+  - Logging collection (optional):
     - To push logs to loki/vmlogs server:
       - Define the url for the server to push logs to, with `LOKI_URL`. The default value points to the logging server operated by the Shutter Network Team. To gain access please ask for credentials in the Shutter Network Discourse forum.
       - Use the `docker-compose.loki.yml` file, which overrides logging, as shown under the running and update sections.
