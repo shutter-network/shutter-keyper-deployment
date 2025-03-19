@@ -144,6 +144,11 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Version History
+
+### `shutter-api-keyper/2025.03.01`
+- Enabled log collection from keypers for better monitoring and issue detection.
+- Fixed docker port mapping to ensure proper connectivity when behind an external firewall.
+
 ### `shutter-api-keyper/2025.02.01`
 - initial public release
 
