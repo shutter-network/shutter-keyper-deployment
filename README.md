@@ -130,7 +130,7 @@ These files will allow you to re-build your Keyper in case of data loss.
 ```shell
 cd shutter-keyper-deployment
 git fetch
-git checkout shutter-api/<new-version-tag>
+git checkout shutter-api-keyper/<new-version-tag>
 docker compose up -d
 ```
 
@@ -139,7 +139,7 @@ docker compose up -d
 ```sh
 cd shutter-keyper-deployment
 git fetch
-git checkout shutter-api/<new-version-tag>
+git checkout shutter-api-keyper/<new-version-tag>
 docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
