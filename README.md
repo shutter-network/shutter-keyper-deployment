@@ -11,7 +11,6 @@ This repository contains the docker compose configuration to run a shutter api k
     - [System requirements](#system-requirements)
     - [Software](#software)
 - [Installation](#installation)
-- [Credentials](#credentials)
 - [Setting Up Logging](#setting-up-logging)
 - [Running the Keyper Node](#running-the-keyper-node)
 - [Backups](#backups)
