@@ -2,6 +2,25 @@
 
 This repository contains the docker compose configuration to run a shutter api keyper.
 
+---
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+    - [Chain execution clients](#chain-execution-clients)
+    - [System requirements](#system-requirements)
+    - [Software](#software)
+- [Installation](#installation)
+- [Setting Up Logging](#setting-up-logging)
+- [Running the Keyper Node](#running-the-keyper-node)
+- [Backups](#backups)
+- [Updating](#updating)
+- [Version History](#version-history)
+- [Contract Deployments](#contract-deployments)
+
+---
+
+
 ## Prerequisites
 
 ### Chain execution clients
@@ -81,21 +100,29 @@ git checkout shutter-api
 
 ## Setting Up Logging
 
-To enable log pushing to a **Loki/VmLogs server**, follow these steps:
+To enable log pushing to a Loki/VmLogs server, follow these steps:
 
-1. **Update `.env` to include Loki logs configuration using the credentials provided by the Shutter team:**
-   ```sh
-   LOKI_URL=https://<user_id>:<password>@logs.metrics.shutter.network/insert/loki/api/v1/push
-   ```
-2. **Install the Loki Docker driver (if not installed):**
-   ```sh
-   docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --grant-all-permissions
-   ```
+1. Update `.env` to include Loki logs configuration using the credentials provided by the Shutter team:
 
-> **Note:** For **ARM64 hosts**, add `-arm64` to the image tag.
+    ```sh
+    LOKI_URL=https://<user_id>:<password>@logs.metrics.shutter.network/insert/loki/api/v1/push
+    ```
+
+   If your password contains special characters, you must URL encode it before using it in the URL. For example:
+
+    ```sh
+    printf %s 'my@password#1' | jq -sRr @uri
+    ```
+
+2. Install the Loki Docker driver (if not installed):
+
+    ```sh
+    docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --grant-all-permissions
+    ```
+
+   > **Note:** For **ARM64 hosts**, add `-arm64` to the image tag.
 
 For more details, refer to the [Docker driver client | Grafana Loki documentation](https://grafana.com/docs/loki/latest/send-data/docker-driver/).
-
 
 > **IMPORTANT:** If logging is enabled, make sure to use the correct `docker compose` commands as noted below.
 
