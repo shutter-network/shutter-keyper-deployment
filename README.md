@@ -145,7 +145,7 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
-### `shutter-api-keyper/2025.03.20`
+### `shutter-api-keyper/2025.04.01`
 - Added sync monitor for api keyper
 
 ### `shutter-api-keyper/2025.03.01`
