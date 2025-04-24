@@ -109,9 +109,9 @@ docker compose up -d
 ## Version History
 
 ### `gnosis/2025.04.1` - `2025-04-24`
-- Update Gnosis Keyper v1.3.5
-- This includes Go version, go-ethereum, libp2p, blst library upgrades
-- Support for pectra upgrade
+- Update to Gnosis Keyper v1.3.5
+- Several upgrades: go, go-ethereum, libp2p, blst
+- Support for Pectra upgrade
 
 
 ### `gnosis/2024.11.1` - `2024-11-06`
