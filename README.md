@@ -108,6 +108,13 @@ docker compose up -d
 
 ## Version History
 
+### `gnosis/2025.04.1` - `2025-04-24`
+- Update to Gnosis Keyper v1.3.6
+- Several upgrades: go, go-ethereum, libp2p, blst
+- Support for Pectra upgrade
+- Disable Aggregate Validator Registration Message
+
+
 ### `gnosis/2024.11.1` - `2024-11-06`
 - Switch to time based version tags in this repo
 - Update to Gnosis Keyper v1.2.5
