@@ -172,6 +172,10 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `shutter-api-keyper/2025.04.03`
+- Sync monitor fix not to halt the system on reorgs
+- Update kad-dht and pubsub libraries"
+
 ### `shutter-api-keyper/2025.04.02`
 - Go version upgrade
 - libp2p, go-ethereum, blst library upgrades
