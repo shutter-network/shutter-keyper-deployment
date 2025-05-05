@@ -173,7 +173,7 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ## Version History
 
 ### `shutter-api-keyper/2025.05.01`
-- Temp: explicit panic when context cancels
+- Synch monitor temporary fix: Explicit panic on context cancellation.
 
 ### `shutter-api-keyper/2025.04.03`
 - Sync monitor fix not to halt the system on reorgs
