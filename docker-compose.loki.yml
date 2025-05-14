@@ -1,0 +1,14 @@
+services:
+  chain:
+    logging: !override
+      driver: loki
+      options:
+        loki-url: ${LOKI_URL}
+        loki-external-labels: keyper_name=kpr-${KEYPER_NAME},job=chain,network=mainnet
+
+  keyper:
+    logging: !override
+      driver: loki
+      options:
+        loki-url: ${LOKI_URL}
+        loki-external-labels: keyper_name=kpr-${KEYPER_NAME},job=keyper,network=mainnet
