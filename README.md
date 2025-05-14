@@ -140,10 +140,15 @@ docker compose up -d
 
 ## Version History
 
-### `gnosis/2025.05.01` - `2025-05-14`
-- Update to Gnosis Keyper v1.3.9
-- Library upgrades: libp2p-kad-dht
-- Enable log collection
+### `gnosis/2025.05.01` – `2025-05-14`
+- Upgrade to **Gnosis Keyper v1.3.9**
+- **Library updates**:
+  - Upgrade `libp2p-kad-dht` to resolve the issue addressed in [libp2p PR #1081](https://github.com/libp2p/go-libp2p-kad-dht/pull/1081)
+- **Improvements**:
+  - Enable optional log collection for improved observability
+  - Apply a fix to the HTTP endpoints as described in [shutter-network issue #588](https://github.com/shutter-network/rolling-shutter/issues/588)
+- **Action required**:
+  - Keypers must follow the update instructions in the README to ensure log collection is properly enabled
 
 ### `gnosis/2025.04.1` - `2025-04-24`
 - Update to Gnosis Keyper v1.3.6
