@@ -76,6 +76,10 @@ git checkout gnosis/2024.11.1
        - Define the target(s) for the pushgateway with `PUSHGATEWAY_URL` (multiple targets can be separated by commas).
          
          The default value points to a pushgateway operated by the Shutter Network team. To gain access please ask for credentials in the Shutter Network Discourse forum.     
+   - Logs collection (optional):
+    - To push logs to loki/vmlogs server:
+      - Define the url for the server to push logs to, with `LOKI_URL`. The default value points to the logging server operated by the Shutter Network Team. To gain access please ask for credentials in the Shutter Network Discourse forum.
+      - Use the `docker-compose.loki.yml` file, which overrides logging, as shown under the running and update sections.
 
 > *) **NOTE**: The `example-mainnet.env` file is a template for Gnosis mainnet deployment. If you want to deploy a Keyper for the Chiado testnet instead, use the `example-chiado.env` file.
 
@@ -86,6 +90,34 @@ You start your Keyper node by running
 ```
 docker compose up -d
 ```
+
+## Setting Up Logging
+
+To enable log pushing to a Loki/VmLogs server, follow these steps:
+
+1. Update `.env` to include Loki logs configuration using the credentials provided by the Shutter team:
+
+    ```sh
+    LOKI_URL=https://<user_id>:<password>@logs.metrics.shutter.network/insert/loki/api/v1/push
+    ```
+
+   If your password contains special characters, you must URL encode it before using it in the URL. For example:
+
+    ```sh
+    printf %s 'my@password#1' | jq -sRr @uri
+    ```
+
+2. Install the Loki Docker driver (if not installed):
+
+    ```sh
+    docker plugin install grafana/loki-docker-driver:3.3.2-amd64 --alias loki --grant-all-permissions
+    ```
+
+   > **Note:** For **ARM64 hosts**, add `-arm64` to the image tag.
+
+For more details, refer to the [Docker driver client | Grafana Loki documentation](https://grafana.com/docs/loki/latest/send-data/docker-driver/).
+
+> **IMPORTANT:** If logging is enabled, make sure to use the correct `docker compose` commands as noted below.
 
 ## Backups
 
@@ -99,6 +131,8 @@ These files will allow you to re-build your Keyper in case of data loss.
 
 ## Updating
 
+### **Without Pushing Logs**
+
 ```shell
 cd shutter-keyper-deployment
 git fetch
@@ -106,7 +140,26 @@ git checkout gnosis/<new-version-tag>
 docker compose up -d
 ```
 
+### **Updating with Log Pushing Enabled**
+> **IMPORTANT:** If logging is enabled, ensure you follow the [Logging Setup](#setting-up-logging) section first. Then, use the correct command:
+```sh
+cd shutter-keyper-deployment
+git fetch
+git checkout gnosis/<new-version-tag>
+docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
+```
+
 ## Version History
+
+### `gnosis/2025.05.01` – `2025-05-14`
+- Upgrade to **Gnosis Keyper v1.3.9**
+- **Library updates**:
+  - Upgrade `libp2p-kad-dht` to resolve the issue addressed in [libp2p PR #1081](https://github.com/libp2p/go-libp2p-kad-dht/pull/1081)
+- **Improvements**:
+  - Enable optional log collection for improved observability
+  - Apply a fix to the HTTP endpoints as described in [shutter-network issue #588](https://github.com/shutter-network/rolling-shutter/issues/588)
+- **Action required**:
+  - Keypers must follow the update instructions in the README to ensure log collection is properly enabled
 
 ### `gnosis/2025.04.1` - `2025-04-24`
 - Update to Gnosis Keyper v1.3.6
