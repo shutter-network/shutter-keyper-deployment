@@ -2,6 +2,24 @@
 
 This repository contains the docker compose configuration to run a gnosis Keyper.
 
+---
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+    - [Gnosis beacon and execution clients](#gnosis-beacon-and-execution-clients)
+    - [System requirements](#system-requirements)
+    - [Software](#software)
+- [Installation](#installation)
+- [Setting Up Logging](#setting-up-logging)
+- [Running the Keyper Node](#running-the-keyper-node)
+- [Backups](#backups)
+- [Updating](#updating)
+- [Version History](#version-history)
+- [Contract Deployments](#contract-deployments)
+
+---
+
 ## Prerequisites
 
 ### Gnosis beacon and execution clients
@@ -77,19 +95,11 @@ git checkout gnosis/2024.11.1
          
          The default value points to a pushgateway operated by the Shutter Network team. To gain access please ask for credentials in the Shutter Network Discourse forum.     
    - Logs collection (optional):
-    - To push logs to loki/vmlogs server:
-      - Define the url for the server to push logs to, with `LOKI_URL`. The default value points to the logging server operated by the Shutter Network Team. To gain access please ask for credentials in the Shutter Network Discourse forum.
-      - Use the `docker-compose.loki.yml` file, which overrides logging, as shown under the running and update sections.
+     - To push logs to loki/vmlogs server:
+       - Define the url for the server to push logs to, with `LOKI_URL`. The default value points to the logging server operated by the Shutter Network Team. To gain access please ask for credentials in the Shutter Network Discourse forum.
+       - Use the `docker-compose.loki.yml` file, which overrides logging, as shown under the running and update sections.
 
 > *) **NOTE**: The `example-mainnet.env` file is a template for Gnosis mainnet deployment. If you want to deploy a Keyper for the Chiado testnet instead, use the `example-chiado.env` file.
-
-## Running
-
-You start your Keyper node by running
-
-```
-docker compose up -d
-```
 
 ## Setting Up Logging
 
@@ -118,6 +128,20 @@ To enable log pushing to a Loki/VmLogs server, follow these steps:
 For more details, refer to the [Docker driver client | Grafana Loki documentation](https://grafana.com/docs/loki/latest/send-data/docker-driver/).
 
 > **IMPORTANT:** If logging is enabled, make sure to use the correct `docker compose` commands as noted below.
+
+## Running the Keyper Node
+
+### **Without Pushing Logs**
+To start the Keyper node run:
+```sh
+docker compose up -d
+```
+
+### **With Log Pushing Enabled**
+> **IMPORTANT:** Logging requires additional configuration steps. Follow the [Logging Setup](#setting-up-logging) section before running the following command:
+```sh
+docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
+```
 
 ## Backups
 
