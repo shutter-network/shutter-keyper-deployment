@@ -131,11 +131,22 @@ These files will allow you to re-build your Keyper in case of data loss.
 
 ## Updating
 
+### **Without Pushing Logs**
+
 ```shell
 cd shutter-keyper-deployment
 git fetch
 git checkout gnosis/<new-version-tag>
 docker compose up -d
+```
+
+### **Updating with Log Pushing Enabled**
+> **IMPORTANT:** If logging is enabled, ensure you follow the [Logging Setup](#setting-up-logging) section first. Then, use the correct command:
+```sh
+cd shutter-keyper-deployment
+git fetch
+git checkout gnosis/<new-version-tag>
+docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Version History
