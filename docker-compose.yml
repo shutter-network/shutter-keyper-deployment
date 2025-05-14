@@ -15,7 +15,7 @@ x-image-metrics: &image-metrics
 x-shutter-environment: &shutter-environment
   #- SHUTTER_INSTANCEID= - set via config script
   - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
-  #- SHUTTER_HTTPENABLED= - set via config script
+  - SHUTTER_HTTPENABLED=${SHUTTER_HTTPENABLED}
   #- SHUTTER_MAXNUMKEYSPERMESSAGE= - set via config script
   #- SHUTTER_CHAIN_SYNCSTARTBLOCKNUMBER= - set via config script
   - SHUTTER_CHAIN_NODE_PRIVATEKEY=${SIGNING_KEY}
@@ -173,6 +173,7 @@ services:
     ports:
       - "24003:24003"
       - "${METRICS_LISTEN_IP}:9200:9200"
+      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy

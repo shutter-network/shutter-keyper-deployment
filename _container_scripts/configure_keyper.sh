@@ -33,7 +33,8 @@ fi
 
 # Values set from assets container and compose env varibles
 sed -i "/^InstanceID/c\InstanceID = ${_ASSETS_INSTANCE_ID}" $CFG
-sed -i "/^HTTPEnabled/c\HTTPEnabled = ${_ASSETS_HTTP_ENABLED}" $CFG
+# sed -i "/^HTTPEnabled/c\HTTPEnabled = ${_ASSETS_HTTP_ENABLED}" $CFG
+sed -i "/^HTTPEnabled/c\HTTPEnabled = ${SHUTTER_HTTPENABLED}" $CFG
 sed -i "/^DatabaseURL/c\DatabaseURL = \"${SHUTTER_DATABASEURL}\"" $CFG
 sed -i "/^MaxNumKeysPerMessage/c\MaxNumKeysPerMessage = ${_ASSETS_MAX_NUM_KEYS_PER_MESSAGE}" $CFG
 sed -i "/^SyncStartBlockNumber/c\SyncStartBlockNumber = ${_ASSETS_SYNC_START_BLOCK_NUMBER}" $CFG
