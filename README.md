@@ -172,6 +172,10 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `shutter-api-keyper/2025.05.03`
+- Upgrade assets version
+- One more boot node added as bootstrap address
+
 ### `shutter-api-keyper/2025.05.02`
 - Library upgrades: libp2p-kad-dht, libp2p-pubsub
 - Remove sync monitor temporary fix
