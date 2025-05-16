@@ -49,6 +49,7 @@ sed -i "/^ValidatorPublicKey/c\ValidatorPublicKey = \"$(cat /data/chain/config/p
 sed -i "/^ListenAddresses/c\ListenAddresses = \"${SHUTTER_P2P_LISTENADDRESSES}\"" $CFG
 sed -i "/^AdvertiseAddresses/c\AdvertiseAddresses = \"${SHUTTER_P2P_ADVERTISEADDRESSES}\"" $CFG
 sed -i "/^CustomBootstrapAddresses/c\CustomBootstrapAddresses = ${_ASSETS_CUSTOM_BOOTSTRAP_ADDRESSES}" $CFG
+sed -i "/^SyncMonitorCheckInterval/c\SyncMonitorCheckInterval = ${_ASSETS_SYNC_MONITOR_CHECK_INTERVAL}" $CFG
 sed -i "/^DKGPhaseLength/c\DKGPhaseLength = ${_ASSETS_DKG_PHASE_LENGTH}" $CFG
 sed -i "/^DKGStartBlockDelta/c\DKGStartBlockDelta = ${_ASSETS_DKG_START_BLOCK_DELTA}" $CFG
 sed -i "/^Enabled/c\Enabled = ${SHUTTER_METRICS_ENABLED}" $CFG
