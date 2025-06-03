@@ -175,6 +175,11 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `gnosis/2025.06.01` – `2025-06-03`
+- Upgrade to **Gnosis Keyper v1.3.10**
+- Bug fix: validator registration message handling
+- Endpoints classified into readonly endpoints
+
 ### `gnosis/2025.05.01` – `2025-05-14`
 - Upgrade to **Gnosis Keyper v1.3.9**
 - **Library updates**:
