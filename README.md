@@ -171,6 +171,10 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Version History
+### `shutter-api-keyper/2025.07.01`
+- Upgrade to [rolling-shutter v1.3.10](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.10)
+- Add middleware to enable/disable read only endpoints
+- Add config to enable HTTP endpoints 
 
 ### `shutter-api-keyper/2025.05.03`
 - Upgrade assets version to v0.0.1
