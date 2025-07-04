@@ -25,13 +25,11 @@ trap cleanup EXIT
 
 echo -e "${G}Restoring from latest backup${DEF}"
 
-# Check if backups directory exists
 if [ ! -d "$BACKUPS_DIR" ]; then
     echo -e "${R}Error: Backups directory not found at $BACKUPS_DIR${DEF}"
     exit 1
 fi
 
-# Find the latest backup file
 LATEST_BACKUP=$(find "$BACKUPS_DIR" -name "shutter-api-keyper-*.tar.xz" -type f | sort | tail -n 1)
 
 if [ -z "$LATEST_BACKUP" ]; then
@@ -41,7 +39,6 @@ fi
 
 echo -e "${B}Found latest backup: ${Y}$(basename "$LATEST_BACKUP")${DEF}"
 
-# Confirm with user
 echo -e "${Y}WARNING: This will overwrite existing data!${DEF}"
 read -p "Are you sure you want to continue? (y/N): " -n 1 -r
 echo
@@ -90,21 +87,22 @@ fi
 
 echo -e "${B}[6/6] Restoring environment variables...${DEF}"
 if [ -f "$WORKDIR/metrics-config/settings.env" ]; then
-    # Read the restored settings and update .env file
-    source "$WORKDIR/metrics-config/settings.env"
+    PUSHGATEWAY_URL=$(grep '^PUSHGATEWAY_URL=' "$WORKDIR/metrics-config/settings.env" | cut -d'=' -f2-)
+    PUSHGATEWAY_USERNAME=$(grep '^PUSHGATEWAY_USERNAME=' "$WORKDIR/metrics-config/settings.env" | cut -d'=' -f2-)
+    PUSHGATEWAY_PASSWORD=$(grep '^PUSHGATEWAY_PASSWORD=' "$WORKDIR/metrics-config/settings.env" | cut -d'=' -f2-)
     
-    # Update the .env file with restored values
     if [ -f "${SCRIPT_DIR}/../.env" ]; then
-        # Backup current .env
         cp "${SCRIPT_DIR}/../.env" "${SCRIPT_DIR}/../.env.backup.$(date +%Y%m%d_%H%M%S)"
         
-        # Update PUSHGATEWAY variables in .env
-        sed -i.bak "s/^PUSHGATEWAY_URL=.*/PUSHGATEWAY_URL=${PUSHGATEWAY_URL:-}/" "${SCRIPT_DIR}/../.env"
-        sed -i.bak "s/^PUSHGATEWAY_USERNAME=.*/PUSHGATEWAY_USERNAME=${PUSHGATEWAY_USERNAME:-}/" "${SCRIPT_DIR}/../.env"
-        sed -i.bak "s/^PUSHGATEWAY_PASSWORD=.*/PUSHGATEWAY_PASSWORD=${PUSHGATEWAY_PASSWORD:-}/" "${SCRIPT_DIR}/../.env"
-        
-        # Clean up backup files
-        rm -f "${SCRIPT_DIR}/../.env.bak"
+        awk -v url="$PUSHGATEWAY_URL" \
+            -v username="$PUSHGATEWAY_USERNAME" \
+            -v password="$PUSHGATEWAY_PASSWORD" \
+            '{
+                if ($0 ~ /^PUSHGATEWAY_URL=/) print "PUSHGATEWAY_URL=\"" url "\"";
+                else if ($0 ~ /^PUSHGATEWAY_USERNAME=/) print "PUSHGATEWAY_USERNAME=\"" username "\"";
+                else if ($0 ~ /^PUSHGATEWAY_PASSWORD=/) print "PUSHGATEWAY_PASSWORD=\"" password "\"";
+                else print $0;
+            }' "${SCRIPT_DIR}/../.env" > "${SCRIPT_DIR}/../.env.tmp" && mv "${SCRIPT_DIR}/../.env.tmp" "${SCRIPT_DIR}/../.env"
         
         echo -e "${G}✓ Environment variables restored${DEF}"
     else

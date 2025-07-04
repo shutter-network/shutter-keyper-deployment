@@ -34,14 +34,14 @@ docker compose pause keyper || true
 docker compose pause chain || true
 
 echo -e "${B}[2/7] Creating database dump...${DEF}"
-docker compose exec db pg_dump -U postgres -d keyper -Fc --create --clean -f /var/lib/postgresql/dump/keyper.dump
+docker compose exec db pg_dump -U postgres -d keyper -Fc --create --clean -f /var/lib/postgresql/data/keyper.dump
 
 echo -e "${B}[3/7] Pausing database...${DEF}"
 docker compose pause db || true
 
 echo -e "${B}[4/7] Copying data...${DEF}"
 cp -a "${SCRIPT_DIR}/../data/chain/" "${WORKDIR}/chain"
-cp -a "${SCRIPT_DIR}/../data/db-data/keyper.dump" "${WORKDIR}/keyper.dump"
+cp -a "${SCRIPT_DIR}/../data/db/keyper.dump" "${WORKDIR}/keyper.dump"
 cp -a "${SCRIPT_DIR}/../config" "${WORKDIR}/keyper-config"
 
 mkdir -p "${WORKDIR}/metrics-config"
