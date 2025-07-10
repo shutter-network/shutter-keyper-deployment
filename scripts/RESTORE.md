@@ -23,7 +23,7 @@
 
 ### Prerequisites
 
-- **Empty keyper instance** - The restore should be performed on a fresh, empty deployment
+- **Empty keyper instance** - The restore *must* be performed on a fresh, empty deployment
 - **No running services** - Ensure all Docker containers are stopped before restore
 - **Backup file available** - The backup archive should be present in `data/backups/` directory
 
