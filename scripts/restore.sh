@@ -77,39 +77,35 @@ fi
 
 echo -e "${B}[5/6] Restoring database dump...${DEF}"
 if [ -f "$WORKDIR/keyper.dump" ]; then
-    mkdir -p "${SCRIPT_DIR}/../data/db-data"
-    cp "$WORKDIR/keyper.dump" "${SCRIPT_DIR}/../data/db-data/keyper.dump"
+    mkdir -p "${SCRIPT_DIR}/../data/db-dump"
+    cp "$WORKDIR/keyper.dump" "${SCRIPT_DIR}/../data/db-dump/keyper.dump"
     echo -e "${G}✓ Database dump restored${DEF}"
 else
     echo -e "${Y}⚠ No database dump found in backup${DEF}"
     exit 1
 fi
 
-echo -e "${B}[6/6] Restoring environment variables...${DEF}"
-if [ -f "$WORKDIR/metrics-config/settings.env" ]; then
-    PUSHGATEWAY_URL=$(grep '^PUSHGATEWAY_URL=' "$WORKDIR/metrics-config/settings.env" | cut -d'=' -f2-)
-    PUSHGATEWAY_USERNAME=$(grep '^PUSHGATEWAY_USERNAME=' "$WORKDIR/metrics-config/settings.env" | cut -d'=' -f2-)
-    PUSHGATEWAY_PASSWORD=$(grep '^PUSHGATEWAY_PASSWORD=' "$WORKDIR/metrics-config/settings.env" | cut -d'=' -f2-)
-    
+echo -e "${B}[6/6] Restoring environment configuration...${DEF}"
+if [ -f "$WORKDIR/env-config/.env" ]; then
     if [ -f "${SCRIPT_DIR}/../.env" ]; then
         cp "${SCRIPT_DIR}/../.env" "${SCRIPT_DIR}/../.env.backup.$(date +%Y%m%d_%H%M%S)"
         
-        awk -v url="$PUSHGATEWAY_URL" \
-            -v username="$PUSHGATEWAY_USERNAME" \
-            -v password="$PUSHGATEWAY_PASSWORD" \
-            '{
-                if ($0 ~ /^PUSHGATEWAY_URL=/) print "PUSHGATEWAY_URL=\"" url "\"";
-                else if ($0 ~ /^PUSHGATEWAY_USERNAME=/) print "PUSHGATEWAY_USERNAME=\"" username "\"";
-                else if ($0 ~ /^PUSHGATEWAY_PASSWORD=/) print "PUSHGATEWAY_PASSWORD=\"" password "\"";
-                else print $0;
-            }' "${SCRIPT_DIR}/../.env" > "${SCRIPT_DIR}/../.env.tmp" && mv "${SCRIPT_DIR}/../.env.tmp" "${SCRIPT_DIR}/../.env"
+        CURRENT_SIGNING_KEY=$(grep '^SIGNING_KEY=' "${SCRIPT_DIR}/../.env" 2>/dev/null || echo "")
         
-        echo -e "${G}✓ Environment variables restored${DEF}"
+        cp "$WORKDIR/env-config/.env" "${SCRIPT_DIR}/../.env"
+        
+        if [ -n "$CURRENT_SIGNING_KEY" ]; then
+            echo "$CURRENT_SIGNING_KEY" >> "${SCRIPT_DIR}/../.env"
+        fi
+        
+        echo -e "${G}✓ Environment configuration restored (private key preserved)${DEF}"
     else
-        echo -e "${Y}⚠ .env file not found, skipping environment restore${DEF}"
+        cp "$WORKDIR/env-config/.env" "${SCRIPT_DIR}/../.env"
+        echo -e "${G}✓ Environment configuration restored${DEF}"
+        echo -e "${Y}⚠ No existing SIGNING_KEY found, you'll need to set it manually${DEF}"
     fi
 else
-    echo -e "${Y}⚠ No metrics-config/settings.env found in backup${DEF}"
+    echo -e "${Y}⚠ No env-config/.env found in backup${DEF}"
 fi
 
 echo -e "${B}Cleaning up...${DEF}"

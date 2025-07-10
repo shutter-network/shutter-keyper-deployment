@@ -44,12 +44,14 @@ cp -a "${SCRIPT_DIR}/../data/chain/" "${WORKDIR}/chain"
 cp -a "${SCRIPT_DIR}/../data/db/keyper.dump" "${WORKDIR}/keyper.dump"
 cp -a "${SCRIPT_DIR}/../config" "${WORKDIR}/keyper-config"
 
-mkdir -p "${WORKDIR}/metrics-config"
-cat > "${WORKDIR}/metrics-config/settings.env" <<EOF
-PUSHGATEWAY_URL=${PUSHGATEWAY_URL:-}
-PUSHGATEWAY_USERNAME=${PUSHGATEWAY_USERNAME:-}
-PUSHGATEWAY_PASSWORD=${PUSHGATEWAY_PASSWORD:-}
-EOF
+mkdir -p "${WORKDIR}/env-config"
+# Copy the entire .env file but replace the private key value with a placeholder
+if [ -f "${SCRIPT_DIR}/../.env" ]; then
+    sed 's/^SIGNING_KEY=.*/SIGNING_KEY=PLACEHOLDER_REPLACE_WITH_YOUR_PRIVATE_KEY/' "${SCRIPT_DIR}/../.env" > "${WORKDIR}/env-config/.env"
+    echo -e "${G}✓ Environment configuration backed up (private key replaced with placeholder)${DEF}"
+else
+    echo -e "${Y}⚠ .env file not found, skipping environment backup${DEF}"
+fi
 
 echo -e "${B}[5/7] Resuming services...${DEF}"
 docker compose unpause || true

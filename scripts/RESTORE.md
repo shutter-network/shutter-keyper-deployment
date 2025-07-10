@@ -17,7 +17,7 @@
 - Database dump (`keyper.dump`) - Contains full schema and data from the `keyper` database
 - Chain data (`data/chain/`) - Blockchain data and configuration
 - Keyper configuration (`config/`) - Application configuration files
-- Environment variables - Metrics configuration settings
+- Environment variables - Except Signing Key
 
 ## Restore Process
 
@@ -35,19 +35,16 @@
    # Edit .env with your configuration values
    ```
 
-2. **Extract backup** (if needed):
-   ```bash
-   # Backup files are automatically extracted during restore
-   # No manual extraction required
-   ```
-
-3. **Run restore script**:
+2. **Run restore script**:
    ```bash
    ./scripts/restore.sh
    ```
    - This will automatically find the latest backup in `data/backups/`
    - Prompts for confirmation before proceeding
    - Restores all data to appropriate locations
+
+3. **Set the Signing Key**:
+   - After restoring, update the `.env` file by setting the `SIGNING_KEY` environment variable to the same value used in your original deployment.
 
 4. **Start services**:
    ```bash
@@ -56,7 +53,7 @@
 
 ### Restore Locations
 
-- **Database**: `data/db-data/keyper.dump` - Automatically restored to PostgreSQL
+- **Database**: `data/db-dump/keyper.dump` - Automatically restored to PostgreSQL
 - **Chain data**: `data/chain/` - Keyper chain data and configuration
 - **Configuration**: `config/` - Application configuration files
 - **Environment**: `.env` - Updated with restored metrics settings
@@ -73,10 +70,3 @@
 - **No backup found** - Ensure backup files exist in `data/backups/` directory
 - **Permission errors** - Ensure proper file permissions on backup files
 - **Configuration issues** - Verify that restored configuration files are valid
-
-### Verification
-
-After restore and startup:
-1. Check database connectivity and table presence
-2. Verify chain is propagating using chain container's logs
-4. Test keyper, and see if it generates decryption keyshares
