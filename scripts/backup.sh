@@ -58,15 +58,15 @@ echo -e "${B}Backup directory: ${Y}$BACKUPS_DIR${DEF}"
 
 mkdir -p "$BACKUPS_DIR"
 
-echo -e "${B}[1/6] Pausing all services except database...${DEF}"
-docker compose down keyper
-docker compose down chain
+echo -e "${B}[1/6] Stopping all services except database...${DEF}"
+docker compose stop keyper
+docker compose stop chain
 
 echo -e "${B}[2/6] Creating database dump...${DEF}"
 docker compose exec db pg_dump -U postgres -d keyper -Fc --create --clean -f /var/lib/postgresql/data/keyper.dump
 
-echo -e "${B}[3/6] Pausing database...${DEF}"
-docker compose down db
+echo -e "${B}[3/6] Stopping database...${DEF}"
+docker compose stop db
 
 echo -e "${B}[4/6] Copying data...${DEF}"
 cp -a "${SCRIPT_DIR}/../data/chain/" "${WORKDIR}/chain"
