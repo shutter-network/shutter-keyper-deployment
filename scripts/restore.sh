@@ -9,21 +9,48 @@ B='\033[0;34m'
 DEF='\033[0m'
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-BACKUPS_DIR="${SCRIPT_DIR}/../data/backups"
+
+# Default backup directory
+DEFAULT_BACKUPS_DIR="${SCRIPT_DIR}/../data/backups"
+
+# Show usage if help is requested
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    echo "Usage: $0 [BACKUP_DIRECTORY]"
+    echo ""
+    echo "Restores from the latest backup in the specified directory."
+    echo ""
+    echo "Arguments:"
+    echo "  BACKUP_DIRECTORY    Directory containing backup files (default: $DEFAULT_BACKUPS_DIR)"
+    echo ""
+    echo "Examples:"
+    echo "  $0                           # Use default backup directory"
+    echo "  $0 /path/to/backups         # Use custom backup directory"
+    echo "  $0 -h                       # Show this help message"
+    exit 0
+fi
+
+# Parse command line arguments
+BACKUPS_DIR="${1:-$DEFAULT_BACKUPS_DIR}"
 
 WORKDIR=$(mktemp -d)
 
 cleanup() {
   rv=$?
   set +e
-  echo -e "${R}Unexpected error, exit code: $rv, cleaning up.${DEF}"
+  
   rm -rf "$WORKDIR" || true
+  
+  if [ $rv -ne 0 ]; then
+    echo -e "${R}Unexpected error, exit code: $rv${DEF}"
+  fi
+  
   exit $rv
 }
 
 trap cleanup EXIT
 
 echo -e "${G}Restoring from latest backup${DEF}"
+echo -e "${B}Backup directory: ${Y}$BACKUPS_DIR${DEF}"
 
 if [ ! -d "$BACKUPS_DIR" ]; then
     echo -e "${R}Error: Backups directory not found at $BACKUPS_DIR${DEF}"
@@ -48,42 +75,51 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 echo -e "${B}[1/6] Stopping services...${DEF}"
-docker compose down || true
+docker compose down
 
 echo -e "${B}[2/6] Extracting backup archive...${DEF}"
 docker run --rm -v "$LATEST_BACKUP:/backup.tar.xz:ro" -v "$WORKDIR:/extract" alpine:3.20.1 ash -c "apk -q --no-progress --no-cache add xz && tar -xf /backup.tar.xz -C /extract"
 
-echo -e "${B}[3/6] Restoring chain data...${DEF}"
-if [ -d "$WORKDIR/chain" ]; then
-    mkdir -p "${SCRIPT_DIR}/../data/chain"
-    rm -rf "${SCRIPT_DIR}/../data/chain"
-    cp -a "$WORKDIR/chain" "${SCRIPT_DIR}/../data/chain"
-    echo -e "${G}✓ Chain data restored${DEF}"
-else
-    echo -e "${Y}⚠ No chain data found in backup${DEF}"
+echo -e "${B}[2.5/6] Validating backup contents...${DEF}"
+MISSING_COMPONENTS=()
+
+if [ ! -d "$WORKDIR/chain" ]; then
+    MISSING_COMPONENTS+=("chain data")
+fi
+
+if [ ! -d "$WORKDIR/keyper-config" ]; then
+    MISSING_COMPONENTS+=("keyper configuration")
+fi
+
+if [ ! -f "$WORKDIR/keyper.dump" ]; then
+    MISSING_COMPONENTS+=("database dump")
+fi
+
+if [ ${#MISSING_COMPONENTS[@]} -gt 0 ]; then
+    echo -e "${R}Error: Backup is incomplete. Missing components:${DEF}"
+    for component in "${MISSING_COMPONENTS[@]}"; do
+        echo -e "${R}  - $component${DEF}"
+    done
+    echo -e "${R}This backup appears to be corrupted or incomplete. Cannot proceed with restore.${DEF}"
     exit 1
 fi
+
+echo -e "${G}✓ Backup validation passed - all required components found${DEF}"
+
+echo -e "${B}[3/6] Restoring chain data...${DEF}"
+rm -rf "${SCRIPT_DIR}/../data/chain" || true
+cp -a "$WORKDIR/chain" "${SCRIPT_DIR}/../data/chain"
+echo -e "${G}✓ Chain data restored${DEF}"
 
 echo -e "${B}[4/6] Restoring keyper configuration...${DEF}"
-if [ -d "$WORKDIR/keyper-config" ]; then
-    mkdir -p "${SCRIPT_DIR}/../config"
-    rm -rf "${SCRIPT_DIR}/../config"
-    cp -a "$WORKDIR/keyper-config" "${SCRIPT_DIR}/../config"
-    echo -e "${G}✓ Keyper configuration restored${DEF}"
-else
-    echo -e "${Y}⚠ No keyper-config found in backup${DEF}"
-    exit 1
-fi
+rm -rf "${SCRIPT_DIR}/../config" || true
+cp -a "$WORKDIR/keyper-config" "${SCRIPT_DIR}/../config"
+echo -e "${G}✓ Keyper configuration restored${DEF}"
 
 echo -e "${B}[5/6] Restoring database dump...${DEF}"
-if [ -f "$WORKDIR/keyper.dump" ]; then
-    mkdir -p "${SCRIPT_DIR}/../data/db-dump"
-    cp "$WORKDIR/keyper.dump" "${SCRIPT_DIR}/../data/db-dump/keyper.dump"
-    echo -e "${G}✓ Database dump restored${DEF}"
-else
-    echo -e "${Y}⚠ No database dump found in backup${DEF}"
-    exit 1
-fi
+mkdir -p "${SCRIPT_DIR}/../data/db-dump"
+cp "$WORKDIR/keyper.dump" "${SCRIPT_DIR}/../data/db-dump/keyper.dump"
+echo -e "${G}✓ Database dump restored${DEF}"
 
 echo -e "${B}[6/6] Restoring environment configuration...${DEF}"
 if [ -f "$WORKDIR/env-config/.env" ]; then
