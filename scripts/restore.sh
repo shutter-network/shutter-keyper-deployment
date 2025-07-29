@@ -125,21 +125,11 @@ echo -e "${B}[6/6] Restoring environment configuration...${DEF}"
 if [ -f "$WORKDIR/env-config/.env" ]; then
     if [ -f "${SCRIPT_DIR}/../.env" ]; then
         cp "${SCRIPT_DIR}/../.env" "${SCRIPT_DIR}/../.env.backup.$(date +%Y%m%d_%H%M%S)"
-        
-        CURRENT_SIGNING_KEY=$(grep '^SIGNING_KEY=' "${SCRIPT_DIR}/../.env" 2>/dev/null || echo "")
-        
-        cp "$WORKDIR/env-config/.env" "${SCRIPT_DIR}/../.env"
-        
-        if [ -n "$CURRENT_SIGNING_KEY" ]; then
-            echo "$CURRENT_SIGNING_KEY" >> "${SCRIPT_DIR}/../.env"
-        fi
-        
-        echo -e "${G}✓ Environment configuration restored (private key preserved)${DEF}"
-    else
-        cp "$WORKDIR/env-config/.env" "${SCRIPT_DIR}/../.env"
-        echo -e "${G}✓ Environment configuration restored${DEF}"
-        echo -e "${Y}⚠ No existing SIGNING_KEY found, you'll need to set it manually${DEF}"
     fi
+    
+    cp "$WORKDIR/env-config/.env" "${SCRIPT_DIR}/../.env"
+    echo -e "${G}✓ Environment configuration restored${DEF}"
+    echo -e "${Y}⚠ You'll need to set your SIGNING_KEY manually${DEF}"
 else
     echo -e "${Y}⚠ No env-config/.env found in backup${DEF}"
 fi
