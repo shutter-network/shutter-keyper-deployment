@@ -55,9 +55,7 @@
 
 1. **Setup environment**:
    ```bash
-   cp example-api.env .env
-   # Edit the .env file to insert your `SIGNING_KEY`, the rest of the settings will be restored from the backup.
-   ```
+   # Edit the .env file to insert your `SIGNING_KEY`, the rest of the settings will have been restored from the backup.
 
 2. **Run restore script**:
    ```bash
