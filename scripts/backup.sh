@@ -38,12 +38,13 @@ source "${SCRIPT_DIR}/../.env"
 
 WORKDIR=$(mktemp -d)
 
-cleanup() {
+cleanup_and_restart() {
   rv=$?
   set +e
   
   rm -rf "$WORKDIR"
-  
+  docker compose start
+
   if [ $rv -ne 0 ]; then
     echo -e "${R}Unexpected error, exit code: $rv${DEF}"
   fi
@@ -51,7 +52,7 @@ cleanup() {
   exit $rv
 }
 
-trap cleanup EXIT
+trap cleanup_and_restart EXIT
 
 echo -e "${G}Creating backup archive${DEF}"
 echo -e "${B}Backup directory: ${Y}$BACKUPS_DIR${DEF}"
@@ -65,8 +66,8 @@ docker compose stop chain
 echo -e "${B}[2/6] Creating database dump...${DEF}"
 docker compose exec db pg_dump -U postgres -d keyper -Fc --create --clean -f /var/lib/postgresql/data/keyper.dump
 
-echo -e "${B}[3/6] Stopping database...${DEF}"
-docker compose stop db
+# echo -e "${B}[3/6] Stopping database...${DEF}"
+# docker compose stop db
 
 echo -e "${B}[4/6] Copying data...${DEF}"
 cp -a "${SCRIPT_DIR}/../data/chain/" "${WORKDIR}/chain"
