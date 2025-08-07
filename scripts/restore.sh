@@ -75,6 +75,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 echo -e "${B}[1/6] Stopping services...${DEF}"
+cd "$SCRIPT_DIR"
 docker compose down
 
 echo -e "${B}[2/6] Extracting backup archive...${DEF}"
