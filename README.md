@@ -171,6 +171,14 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Version History
+
+### `shutter-api-keyper/2025.08.01`
+- Upgrade to [rolling-shutter v1.3.12](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.12)
+- Add logic to allow for DB migrations
+- Fix issue with context cancellation
+- Improve keyper metrics to include DKG results, ETH address and EL/CL clients
+- Add back-up and restore scripts to automatically back up and restore a keyper
+
 ### `shutter-api-keyper/2025.07.01`
 - Upgrade to [rolling-shutter v1.3.10](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.10)
 - Add middleware to enable/disable read only endpoints
