@@ -18,6 +18,7 @@
    ```
 3. **Backup location** - Backups are stored in the specified directory (default: `data/backups/`)
 4. **Backup naming** - Files are named with timestamp: `shutter-api-keyper-YYYY-MM-DDTHH-MM-SS.tar.xz`
+5. **Sanity check** - After the backup completes, verify in keyper logs that it resyncs events
 
 ### What Gets Backed Up
 
