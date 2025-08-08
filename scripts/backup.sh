@@ -65,8 +65,8 @@ docker compose stop chain
 echo -e "${B}[2/6] Creating database dump...${DEF}"
 docker compose exec db pg_dump -U postgres -d keyper -Fc --create --clean -f /var/lib/postgresql/data/keyper.dump
 
-# echo -e "${B}[3/6] Stopping database...${DEF}"
-# docker compose stop db
+echo -e "${B}[3/6] Stopping database...${DEF}"
+docker compose stop db
 
 echo -e "${B}[4/6] Copying data...${DEF}"
 cp -a "${SCRIPT_DIR}/../data/chain/" "${WORKDIR}/chain"
@@ -74,7 +74,6 @@ cp -a "${SCRIPT_DIR}/../data/db/keyper.dump" "${WORKDIR}/keyper.dump"
 cp -a "${SCRIPT_DIR}/../config" "${WORKDIR}/keyper-config"
 
 mkdir -p "${WORKDIR}/env-config"
-# Copy the entire .env file but replace the private key value with a placeholder
 if [ -f "${SCRIPT_DIR}/../.env" ]; then
     sed 's/^SIGNING_KEY=.*/SIGNING_KEY=PLACEHOLDER_REPLACE_WITH_YOUR_PRIVATE_KEY/' "${SCRIPT_DIR}/../.env" > "${WORKDIR}/env-config/.env"
     echo -e "${G}✓ Environment configuration backed up (private key replaced with placeholder)${DEF}"
@@ -86,7 +85,7 @@ echo -e "${B}[5/6] Compressing archive...${DEF}"
 docker run --rm -it -v "${WORKDIR}:/workdir" -v "$BACKUPS_DIR:/data" alpine:3.20.1 ash -c "apk -q --no-progress --no-cache add xz pv && tar -cf - -C /workdir . | pv -petabs \$(du -sb /workdir | cut -f 1) | xz -zq > /data/${ARCHIVE_NAME}"
 
 echo -e "${B}[6/6] Cleaning up...${DEF}"
-rm -rf "$WORKDIR"
+rm "${SCRIPT_DIR}/../data/db/keyper.dump" || true
 
 echo -e "${G}Done, backup archive created at ${B}$BACKUPS_DIR/${ARCHIVE_NAME}${DEF}"
 
