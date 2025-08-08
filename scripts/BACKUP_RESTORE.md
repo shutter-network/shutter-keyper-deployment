@@ -54,11 +54,7 @@
 
 ### Restore Steps
 
-1. **Setup environment**:
-   ```bash
-   # Edit the .env file to insert your `SIGNING_KEY`, the rest of the settings will have been restored from the backup.
-
-2. **Run restore script**:
+1. **Run restore script**:
    ```bash
    # Use default backup directory (data/backups/)
    ./scripts/restore.sh
@@ -73,11 +69,11 @@
    - Prompts for confirmation before proceeding
    - Restores all data to appropriate locations
 
-3. **Set the Signing Key**:
+2. **Set the Signing Key**:
    - After restoring, update the `.env` file by setting the `SIGNING_KEY` environment variable to the same value used in your original deployment.
    - **CRITICAL**: Without the correct signing key, the restored deployment will not function properly and may not be able to process transactions.
 
-4. **Start services**:
+3. **Start services**:
    If using loki log collection, please follow instructions given in README.md.
 
    For basic restart:
@@ -85,7 +81,7 @@
    docker compose up -d
    ```
 
-5. **Environment file preservation**:
+4. **Environment file preservation**:
    The restore script automatically preserves any existing `.env` file by creating a timestamped backup (`.env.backup.YYYY-MM-DDTHH-MM-SS`) before overwriting it with restored configuration. This ensures no environment variables are lost during the restore process.
 
 ### Restore Locations
