@@ -142,7 +142,18 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Backups
 
-Once your Keyper is up and running, you should regularly back up the following:
+### New Backup and Restore Guide
+
+We have introduced a new backup and restore process with dedicated scripts to make it easier and safer to preserve your Keyper’s data.
+
+**All keypers should follow the new process** described in the [Backup and Restore Guide](https://github.com/shutter-network/shutter-keyper-deployment/blob/shutter-api/scripts/BACKUP_RESTORE.md)
+) to ensure backups are complete and restores work correctly.
+
+### Previous Manual Backup
+
+(Deprecated – use only for reference.)
+
+If you are still using the manual process, regularly back up the following:
 
 - `.env`
 - `./config`
@@ -171,6 +182,16 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Version History
+
+### `shutter-api-keyper/2025.08.01`
+- Upgrade to [rolling-shutter v1.3.12](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.12)
+- Add logic to allow for DB migrations
+- Fix issue with context cancellation
+- Improve keyper metrics to include DKG results, ETH address and EL/CL clients
+- Introduced a new backup and restore process with dedicated scripts.
+  The previous manual backup method is now deprecated — operators should follow
+  the new [Backup and Restore Guide](https://github.com/shutter-network/shutter-keyper-deployment/blob/shutter-api/scripts/BACKUP_RESTORE.md).
+
 ### `shutter-api-keyper/2025.07.01`
 - Upgrade to [rolling-shutter v1.3.10](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.10)
 - Add middleware to enable/disable read only endpoints
