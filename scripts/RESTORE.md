@@ -78,9 +78,15 @@
    - **CRITICAL**: Without the correct signing key, the restored deployment will not function properly and may not be able to process transactions.
 
 4. **Start services**:
+   If using loki log collection, please follow instructions given in README.md.
+
+   For basic restart:
    ```bash
    docker compose up -d
    ```
+
+5. **Environment file preservation**:
+   The restore script automatically preserves any existing `.env` file by creating a timestamped backup (`.env.backup.YYYY-MM-DDTHH-MM-SS`) before overwriting it with restored configuration. This ensures no environment variables are lost during the restore process.
 
 ### Restore Locations
 

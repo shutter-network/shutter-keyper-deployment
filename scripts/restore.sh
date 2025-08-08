@@ -142,7 +142,7 @@ rm -rf "$WORKDIR"
 echo -e "${G}Restore completed successfully!${DEF}"
 echo -e "${Y}Next steps:${DEF}"
 echo -e "1. Review the restored configuration files"
-echo -e "2. Start the services: ${B}docker compose up -d${DEF}"
+echo -e "2. Start the services: ${B}Follow the instructions in the README.md${DEF}"
 echo -e "3. The database will be automatically restored on first startup"
 
 trap - EXIT
