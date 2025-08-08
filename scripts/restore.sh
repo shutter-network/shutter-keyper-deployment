@@ -32,7 +32,7 @@ fi
 # Parse command line arguments
 BACKUPS_DIR="${1:-$DEFAULT_BACKUPS_DIR}"
 
-WORKDIR=$(mktemp -d)
+WORKDIR=$(mktemp -d -p "${BACKUPS_DIR}")
 
 cleanup() {
   rv=$?
@@ -109,6 +109,7 @@ echo -e "${G}✓ Backup validation passed - all required components found${DEF}"
 
 echo -e "${B}[3/6] Restoring chain data...${DEF}"
 rm -rf "${SCRIPT_DIR}/../data/chain" || true
+mkdir -p "${SCRIPT_DIR}/../data"
 cp -a "$WORKDIR/chain" "${SCRIPT_DIR}/../data/chain"
 echo -e "${G}✓ Chain data restored${DEF}"
 

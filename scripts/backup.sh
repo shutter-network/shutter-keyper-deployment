@@ -36,7 +36,8 @@ ARCHIVE_NAME="shutter-api-keyper-$(date +%Y-%m-%dT%H-%M-%S).tar.xz"
 
 source "${SCRIPT_DIR}/../.env"
 
-WORKDIR=$(mktemp -d)
+mkdir -p "$BACKUPS_DIR"
+WORKDIR=$(mktemp -d -p "${BACKUPS_DIR}")
 
 cleanup_and_restart() {
   rv=$?
@@ -56,8 +57,6 @@ trap cleanup_and_restart EXIT
 
 echo -e "${G}Creating backup archive${DEF}"
 echo -e "${B}Backup directory: ${Y}$BACKUPS_DIR${DEF}"
-
-mkdir -p "$BACKUPS_DIR"
 
 echo -e "${B}[1/6] Stopping all services except database...${DEF}"
 docker compose stop keyper
