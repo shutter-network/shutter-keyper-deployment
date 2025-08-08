@@ -146,7 +146,8 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 We have introduced a new backup and restore process with dedicated scripts to make it easier and safer to preserve your Keyper’s data.
 
-**All keypers should follow the new process** described in the [Backup and Restore Guide](./scripts/BACKUP_RESTORE.md) to ensure backups are complete and restores work correctly.
+**All keypers should follow the new process** described in the [Backup and Restore Guide](https://github.com/shutter-network/shutter-keyper-deployment/blob/shutter-api/scripts/BACKUP_RESTORE.md)
+) to ensure backups are complete and restores work correctly.
 
 ### Previous Manual Backup
 
@@ -189,7 +190,7 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 - Improve keyper metrics to include DKG results, ETH address and EL/CL clients
 - Introduced a new backup and restore process with dedicated scripts.
   The previous manual backup method is now deprecated — operators should follow
-  the new [Backup and Restore Guide](./scripts/BACKUP_RESTORE.md).
+  the new [Backup and Restore Guide](https://github.com/shutter-network/shutter-keyper-deployment/blob/shutter-api/scripts/BACKUP_RESTORE.md).
 
 ### `shutter-api-keyper/2025.07.01`
 - Upgrade to [rolling-shutter v1.3.10](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.10)
