@@ -184,6 +184,14 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Version History
+### `gnosis/2025.09.01` – `2025-09-04`
+- Upgrade to [rolling-shutter v1.3.12](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.12)
+- Add logic to allow for DB migrations
+- Fix issue with context cancellation
+- Improve keyper metrics to include DKG results, ETH address and EL/CL clients
+- Introduced a new backup and restore process with dedicated scripts.
+  The previous manual backup method is now deprecated — operators should follow
+  the new [Backup and Restore Guide](scripts/BACKUP_RESTORE.md).
 
 ### `gnosis/2025.06.01` – `2025-06-03`
 - Upgrade to **Gnosis Keyper v1.3.10**
