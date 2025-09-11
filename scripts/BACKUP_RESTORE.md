@@ -69,9 +69,21 @@
     - Prompts for confirmation before proceeding
     - Restores all data to appropriate locations
 
-2. **Set the Signing Key**:
-    - After restoring, update the `.env` file by setting the `SIGNING_KEY` environment variable to the same value used in your original deployment.
-    - **CRITICAL**: Without the correct signing key, the restored deployment will not function properly and may not be able to process transactions.
+## 2. Set the Signing Key
+
+- After restoring, update both configuration files with the same signing key used in your original deployment:
+
+    - In `.env`, set:
+      ```env
+      SIGNING_KEY="YOUR_PRIVATE_KEY"
+      ```
+
+    - In `keyper-config/keyper.toml`, replace the `PrivateKey` field with the same value:
+      ```toml
+      PrivateKey = "YOUR_PRIVATE_KEY"
+      ```
+
+- **CRITICAL**: Without the correct signing key in **both** files, the restored deployment will not function properly and may not be able to process transactions.
 
 3. **Start services**:
    If using loki log collection, please follow instructions given in README.md.

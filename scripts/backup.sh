@@ -73,6 +73,14 @@ cp -a "${SCRIPT_DIR}/../data/chain/" "${WORKDIR}/chain"
 cp -a "${SCRIPT_DIR}/../data/db/keyper.dump" "${WORKDIR}/keyper.dump"
 cp -a "${SCRIPT_DIR}/../config" "${WORKDIR}/keyper-config"
 
+KEYPER_TOML="${WORKDIR}/keyper-config/keyper.toml"
+if [ -f "$KEYPER_TOML" ]; then
+    sed -i 's|\(PrivateKey\s*=\s*\).*|\1"PLACEHOLDER_REPLACE_WITH_YOUR_PRIVATE_KEY"|' "$KEYPER_TOML"
+    echo -e "${G}✓ keyper.toml backed up (private key replaced with placeholder)${DEF}"
+else
+    echo -e "${Y}⚠ keyper.toml not found in config, skipping private key sanitization${DEF}"
+fi
+
 mkdir -p "${WORKDIR}/env-config"
 if [ -f "${SCRIPT_DIR}/../.env" ]; then
     sed 's/^SIGNING_KEY=.*/SIGNING_KEY=PLACEHOLDER_REPLACE_WITH_YOUR_PRIVATE_KEY/' "${SCRIPT_DIR}/../.env" > "${WORKDIR}/env-config/.env"
