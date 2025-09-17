@@ -4,7 +4,7 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ${SHUTTER_IMAGE_ROLLING_SHUTTER:-ghcr.io/shutter-network/keyper:v1.3.10}
+  image: ${SHUTTER_IMAGE_ROLLING_SHUTTER:-ghcr.io/shutter-network/keyper:v1.3.12}
 
 x-image-assets: &image-assets
   image: ${SHUTTER_IMAGE_ASSETS:-ghcr.io/shutter-network/assets:shutter-gnosis-1000-set1.3}
@@ -51,6 +51,8 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
       - ./_container_scripts/keyper-db-init.sh:/docker-entrypoint-initdb.d/keyper-db-init.sh:ro
+      - ./data/db-dump:/var/lib/postgresql/dump
+
     healthcheck:
       test: pg_isready -U postgres
       start_period: "30s"
