@@ -57,3 +57,4 @@ sed -i "/^CustomBootstrapAddresses/c\CustomBootstrapAddresses = ${_ASSETS_CUSTOM
 sed -i "/^DKGPhaseLength/c\DKGPhaseLength = ${_ASSETS_DKG_PHASE_LENGTH}" $CFG
 sed -i "/^DKGStartBlockDelta/c\DKGStartBlockDelta = ${_ASSETS_DKG_START_BLOCK_DELTA}" $CFG
 sed -i "/^Enabled/c\Enabled = ${SHUTTER_METRICS_ENABLED}" $CFG
+sed -i "/^EnableAggregateValidatorRegistrationV1/c\EnableAggregateValidatorRegistrationV1 = ${_ASSETS_ENABLE_AGGREGATE_VALIDATOR_REGISTRATION_V1}" $CFG
