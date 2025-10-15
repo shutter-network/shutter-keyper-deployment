@@ -184,6 +184,9 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ```
 
 ## Version History
+### `gnosis/2025.10.01` – `2025-10-15`
+- Enable aggregate validator registration through assets (`shutter-gnosis-1000-set1.4.1`)
+
 ### `gnosis/2025.09.01` – `2025-09-04`
 - Upgrade to [rolling-shutter v1.3.12](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.12)
 - Add logic to allow for DB migrations
