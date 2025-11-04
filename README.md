@@ -183,6 +183,11 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `shutter-api-keyper/2025.11.01` – `2025-11-03`
+- Upgrade to [Keyper v1.3.13](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.13)
+- Fix Shuttermint block processing
+- Add DKG message sent/received metrics for improved observability of DKG communication
+
 ### `shutter-api-keyper/2025.08.01`
 - Upgrade to [rolling-shutter v1.3.12](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.12)
 - Add logic to allow for DB migrations
