@@ -185,6 +185,11 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `gnosis/2025.11.03` – `2025-11-18`
+- Upgrade to [Keyper v1.3.15](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.15)
+- Enable keypers to update shuttermint keys
+- Enable multiple schema files to be parsed via sqlc definition
+
 ### `gnosis/2025.11.02` – `2025-11-05`
 - Upgrade to [Keyper v1.3.14](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.14)
 - Fix transaction pointer reset in case of an empty transaction submitted table
