@@ -13,6 +13,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # Default backup directory
 DEFAULT_BACKUPS_DIR="${SCRIPT_DIR}/../data/backups"
 
+ASK_FOR_CONFIRMATION="true"
+
 # Show usage if help is requested
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     echo "Usage: $0 [BACKUP_DIRECTORY]"
@@ -23,14 +25,21 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     echo "  BACKUP_DIRECTORY    Directory containing backup files (default: $DEFAULT_BACKUPS_DIR)"
     echo ""
     echo "Examples:"
-    echo "  $0                           # Use default backup directory"
+    echo "  $0                          # Use default backup directory"
     echo "  $0 /path/to/backups         # Use custom backup directory"
+    echo "  $0 -y                       # Use default backup directory without asking for confirmation"
+    echo "  $0 -y /path/to/backups       # Use custom backup directory without asking for confirmation"
     echo "  $0 -h                       # Show this help message"
     exit 0
 fi
 
-# Parse command line arguments
-BACKUPS_DIR="${1:-$DEFAULT_BACKUPS_DIR}"
+if [[ "${1:-}" == "-y" ]]; then
+    ASK_FOR_CONFIRMATION="false"
+    BACKUPS_DIR="${2:-$DEFAULT_BACKUPS_DIR}"
+else
+    # Parse command line arguments
+    BACKUPS_DIR="${1:-$DEFAULT_BACKUPS_DIR}"
+fi
 
 WORKDIR=$(mktemp -d -p "${BACKUPS_DIR}")
 
@@ -66,12 +75,14 @@ fi
 
 echo -e "${B}Found latest backup: ${Y}$(basename "$LATEST_BACKUP")${DEF}"
 
-echo -e "${Y}WARNING: This will overwrite existing data!${DEF}"
-read -p "Are you sure you want to continue? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${R}Restore cancelled.${DEF}"
-    exit 0
+if [[ "$ASK_FOR_CONFIRMATION" == "true" ]]; then
+    echo -e "${Y}WARNING: This will overwrite existing data!${DEF}"
+    read -p "Are you sure you want to continue? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${R}Restore cancelled.${DEF}"
+        exit 0
+    fi
 fi
 
 echo -e "${B}[1/6] Stopping services...${DEF}"
