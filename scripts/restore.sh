@@ -33,11 +33,11 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     exit 0
 fi
 
+# Parse command line arguments
 if [[ "${1:-}" == "-y" ]]; then
     ASK_FOR_CONFIRMATION="false"
     BACKUPS_DIR="${2:-$DEFAULT_BACKUPS_DIR}"
 else
-    # Parse command line arguments
     BACKUPS_DIR="${1:-$DEFAULT_BACKUPS_DIR}"
 fi
 
