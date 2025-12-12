@@ -64,6 +64,9 @@
    
    # Show help
    ./scripts/restore.sh -h
+
+   # Don't ask for confirmation
+   ./scripts/restore.sh -y /path/to/backups
    ```
    - This will automatically find the latest backup in the specified directory
    - Prompts for confirmation before proceeding
