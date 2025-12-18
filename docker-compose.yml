@@ -4,7 +4,7 @@ x-logging: &logging
     max-file: 10
 
 x-image-main: &image-main
-  image: ${SHUTTER_IMAGE_ROLLING_SHUTTER:-ghcr.io/shutter-network/keyper:v1.4}
+  image: ${SHUTTER_IMAGE_ROLLING_SHUTTER:-ghcr.io/shutter-network/keyper:v1.4.0}
 
 x-image-assets: &image-assets
   image: ${SHUTTER_IMAGE_ASSETS:-ghcr.io/shutter-network/assets:shutter-api-gnosis-1001-set1.1.1}
