@@ -183,6 +183,15 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `shutter-api-keyper/2025.12.01` – `2025-12-18`
+- Upgrade to [Keyper v1.4.0](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.0)
+- Add support for event-based decryption conditions via ShutterEventTriggerRegistry (not enabled in this release)
+- Fix compatibility for previous eons
+- Fix event-based decryption trigger DB migration
+- Fix decryption_key endpoint
+- Fix keyper hanging issue
+- Update handler and middleware to allow no sig on keys message and no check on decryption trigger
+
 ### `shutter-api-keyper/2025.11.01` – `2025-11-03`
 - Upgrade to [Keyper v1.3.13](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.13)
 - Fix Shuttermint block processing
