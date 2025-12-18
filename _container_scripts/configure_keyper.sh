@@ -45,6 +45,9 @@ sed -i "/^EthereumURL/c\EthereumURL = \"${SHUTTER_CHAIN_NODE_ETHEREUMURL}\"" $CF
 sed -i "/^KeyperSetManager/c\KeyperSetManager = \"${_ASSETS_KEYPER_SET_MANAGER}\"" $CFG
 sed -i "/^KeyBroadcastContract/c\KeyBroadcastContract = \"${_ASSETS_KEY_BROADCAST_CONTRACT}\"" $CFG
 sed -i "/^ShutterRegistry/c\ShutterRegistry = \"${_ASSETS_SHUTTERREGISTRY}\"" $CFG
+if [[ "${_ASSETS_SHUTTER_EVENT_TRIGGER_REGISTRY:-}" =~ ^0x[0-9a-fA-F]{40}$ ]]; then
+  sed -i "/^ShutterEventTriggerRegistry/c\ShutterEventTriggerRegistry = \"${_ASSETS_SHUTTER_EVENT_TRIGGER_REGISTRY}\"" $CFG
+fi
 sed -i "/^DiscoveryNamespace/c\DiscoveryNamespace = \"${_ASSETS_DISCOVERY_NAME_PREFIX}-${_ASSETS_INSTANCE_ID}\"" $CFG
 sed -i "/^ShuttermintURL/c\ShuttermintURL = \"${SHUTTER_SHUTTERMINT_SHUTTERMINTURL}\"" $CFG
 sed -i "/^ValidatorPublicKey/c\ValidatorPublicKey = \"$(cat /data/chain/config/priv_validator_pubkey.hex)\"" $CFG
