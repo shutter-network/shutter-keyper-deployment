@@ -185,7 +185,7 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
-### `gnosis/2025.12.01` – `2025-12-31`
+### `gnosis/2026.01.01` – `2026-01-06`
 - Upgrade to [Keyper v1.4.0](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.0)
 - Fix compatibility for previous eons
 - Fix decryption_key endpoint
