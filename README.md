@@ -185,6 +185,13 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `gnosis/2026.01.01` – `2026-01-06`
+- Upgrade to [Keyper v1.4.0](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.0)
+- Fix compatibility for previous eons
+- Fix decryption_key endpoint
+- Fix keyper hanging issue
+- Update handler and middleware to allow no sig on keys message and no check on decryption trigger
+
 ### `gnosis/2025.11.03` – `2025-11-18`
 - Upgrade to [Keyper v1.3.15](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.3.15)
 - Enable keypers to update shuttermint keys
