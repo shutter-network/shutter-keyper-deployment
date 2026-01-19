@@ -76,11 +76,11 @@ fi
 DB_WAS_RUNNING=0
 KEYPER_WAS_RUNNING=0
 
-if [[ -n "$(docker compose ps -q db 2>/dev/null || true)" ]]; then
+if [[ -n "$(docker compose ps --status=running -q db 2>/dev/null || true)" ]]; then
   DB_WAS_RUNNING=1
 fi
 
-if [[ -n "$(docker compose ps -q keyper 2>/dev/null || true)" ]]; then
+if [[ -n "$(docker compose ps --status=running -q keyper 2>/dev/null || true)" ]]; then
   KEYPER_WAS_RUNNING=1
 fi
 
