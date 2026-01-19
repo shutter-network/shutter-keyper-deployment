@@ -136,11 +136,6 @@ if ! [[ "$CURRENT_BLOCK" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-if ! [[ "$MIN_TENDERMINT_CURRENT_BLOCK" =~ ^-?[0-9]+$ ]]; then
-  echo "ERROR: MIN_TENDERMINT_CURRENT_BLOCK must be an integer (current: $MIN_TENDERMINT_CURRENT_BLOCK)" >&2
-  exit 1
-fi
-
 if (( CURRENT_BLOCK < MIN_TENDERMINT_CURRENT_BLOCK )); then
   echo "ERROR: shuttermint sync block number ($CURRENT_BLOCK) is below MIN_TENDERMINT_CURRENT_BLOCK ($MIN_TENDERMINT_CURRENT_BLOCK); aborting. Please wait until the node is sufficiently synced and try again." >&2
   exit 1
