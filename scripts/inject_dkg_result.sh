@@ -56,6 +56,11 @@ if [[ "$#" -ne 1 ]]; then
   usage
 fi
 
+if ! command -v tar >/dev/null 2>&1; then
+  echo "ERROR: required command 'tar' not found in PATH" >&2
+  exit 1
+fi
+
 BACKUP_TARBALL_PATH="$1"
 
 if [[ ! -f "$BACKUP_TARBALL_PATH" ]]; then
