@@ -123,7 +123,7 @@ fi
 
 log "Checking shuttermint sync block number >= ${MIN_TENDERMINT_CURRENT_BLOCK}"
 CURRENT_BLOCK=$(docker compose exec -T db sh -lc \
-  "psql -t -A -U postgres -d ${KEYPER_DB} -c \"SELECT current_block FROM tendermint_sync_meta LIMIT 1\"" \
+  "psql -t -A -U postgres -d ${KEYPER_DB} -c \"SELECT current_block FROM tendermint_sync_meta ORDER BY current_block DESC LIMIT 1\"" \
   2>/dev/null | tr -d '[:space:]')
 
 if [[ -z "$CURRENT_BLOCK" ]]; then
