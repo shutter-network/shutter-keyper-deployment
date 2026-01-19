@@ -215,6 +215,11 @@ for entry in "${TABLES[@]}"; do
     "psql -v ON_ERROR_STOP=1 -U postgres -d ${KEYPER_DB} -c \"COPY (SELECT ${SELECT_COLUMNS_WITH_KEY} FROM ${TABLE} WHERE ${KEY_COLUMN} = '${KEY_VALUE}' LIMIT 1) TO STDOUT WITH CSV\"" \
     >"$LIVE_CSV_FILE" 2>/dev/null || true
 
+  if [[ ! -s "$LIVE_CSV_FILE" ]]; then
+    echo "ERROR: no data extracted from live DB (no row with ${KEY_COLUMN}=${KEY_VALUE} in ${TABLE})" >&2
+    exit 1
+  fi
+
   if [[ -s "$LIVE_CSV_FILE" && -s "$BACKUP_CSV_FILE" && "$(cat "$LIVE_CSV_FILE")" == "$(cat "$BACKUP_CSV_FILE")" ]]; then
     log "Live row for ${TABLE} already matches backup, nothing to do"
     continue
