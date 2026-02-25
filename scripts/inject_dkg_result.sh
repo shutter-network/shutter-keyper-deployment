@@ -14,7 +14,7 @@
 # The rows to update are identified by EON and KEYPER_CONFIG_INDEX
 # variables defined below.
 #
-# Usage: ./inject_dkg_result.sh <path-to-backup.tar.xz>
+# Usage: ./inject_dkg_result.sh <path-to-backup.tar|path-to-backup.tar.xz>
 #
 # Ensure the node is sufficiently synced before running. If the keyper
 # service is running, it will be stopped during the operation and
@@ -48,7 +48,7 @@ log() {
 }
 
 usage() {
-  echo "Usage: $(basename "$0") <path-to-backup.tar.xz>" >&2
+  echo "Usage: $(basename "$0") <path-to-backup.tar|path-to-backup.tar.xz>" >&2
   exit 1
 }
 
@@ -145,10 +145,43 @@ log "Stopping keyper service"
 docker compose stop keyper >/dev/null 2>&1 || true
 
 log "Extracting keyper DB from backup"
-tar -xJOf "$BACKUP_TARBALL_PATH" ./keyper.dump >"$DUMP_FILE"
+TAR_WARNING_FLAGS=()
+if tar --help 2>/dev/null | grep -q -- '--warning'; then
+  TAR_WARNING_FLAGS+=(--warning=no-unknown-keyword)
+fi
+
+TAR_COMPRESS_FLAGS=()
+if [[ "$BACKUP_TARBALL_PATH" == *.tar.xz ]]; then
+  TAR_COMPRESS_FLAGS=(-J)
+fi
+
+TAR_LIST_OUTPUT=""
+if ! TAR_LIST_OUTPUT=$(tar "${TAR_WARNING_FLAGS[@]}" "${TAR_COMPRESS_FLAGS[@]}" -tf "$BACKUP_TARBALL_PATH" 2>/dev/null); then
+  if [[ "${#TAR_COMPRESS_FLAGS[@]}" -eq 0 ]]; then
+    TAR_COMPRESS_FLAGS=(-J)
+    TAR_LIST_OUTPUT=$(tar "${TAR_WARNING_FLAGS[@]}" "${TAR_COMPRESS_FLAGS[@]}" -tf "$BACKUP_TARBALL_PATH" 2>/dev/null) || true
+  fi
+fi
+
+DUMP_TAR_MEMBER=""
+while IFS= read -r entry; do
+  [[ -z "$entry" ]] && continue
+  normalized_entry="${entry#./}"
+  if [[ "$normalized_entry" == "keyper.dump" || "$normalized_entry" == */keyper.dump ]]; then
+    DUMP_TAR_MEMBER="$entry"
+    break
+  fi
+done <<< "$TAR_LIST_OUTPUT"
+
+if [[ -z "$DUMP_TAR_MEMBER" ]]; then
+  echo "ERROR: could not find keyper.dump inside ${BACKUP_TARBALL_PATH}" >&2
+  exit 1
+fi
+
+tar "${TAR_WARNING_FLAGS[@]}" "${TAR_COMPRESS_FLAGS[@]}" -xOf "$BACKUP_TARBALL_PATH" "$DUMP_TAR_MEMBER" >"$DUMP_FILE"
 
 if [[ ! -s "$DUMP_FILE" ]]; then
-  echo "ERROR: failed to extract ./keyper.dump from ${BACKUP_TARBALL_PATH}" >&2
+  echo "ERROR: failed to extract ${DUMP_TAR_MEMBER} from ${BACKUP_TARBALL_PATH}" >&2
   exit 1
 fi
 
