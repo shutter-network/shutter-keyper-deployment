@@ -66,7 +66,7 @@ if [ ! -d "$BACKUPS_DIR" ]; then
     exit 1
 fi
 
-LATEST_BACKUP=$(find "$BACKUPS_DIR" -name "shutter-api-keyper-*.tar.xz" -type f | sort | tail -n 1)
+LATEST_BACKUP=$(find "$BACKUPS_DIR" \( -name "shutter-api-keyper-*.tar" -o -name "shutter-api-keyper-*.tar.xz" \) -type f | sort | tail -n 1)
 
 if [ -z "$LATEST_BACKUP" ]; then
     echo -e "${R}Error: No backup files found in $BACKUPS_DIR${DEF}"
@@ -90,7 +90,11 @@ cd "$SCRIPT_DIR"
 docker compose down
 
 echo -e "${B}[2/6] Extracting backup archive...${DEF}"
-docker run --rm -v "$LATEST_BACKUP:/backup.tar.xz:ro" -v "$WORKDIR:/extract" alpine:3.20.1 ash -c "apk -q --no-progress --no-cache add xz && tar -xf /backup.tar.xz -C /extract"
+if [[ "$LATEST_BACKUP" == *.tar.xz ]]; then
+    docker run --rm -v "$LATEST_BACKUP:/backup:ro" -v "$WORKDIR:/extract" alpine:3.20.1 ash -c "apk -q --no-progress --no-cache add xz && tar -xJf /backup -C /extract"
+else
+    docker run --rm -v "$LATEST_BACKUP:/backup:ro" -v "$WORKDIR:/extract" alpine:3.20.1 ash -c "tar -xf /backup -C /extract"
+fi
 
 echo -e "${B}[2.5/6] Validating backup contents...${DEF}"
 MISSING_COMPONENTS=()
