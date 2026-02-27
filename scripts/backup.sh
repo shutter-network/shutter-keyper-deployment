@@ -32,7 +32,7 @@ fi
 # Parse command line arguments
 BACKUPS_DIR="${1:-$DEFAULT_BACKUPS_DIR}"
 
-ARCHIVE_NAME="gnosis-keyper-$(date +%Y-%m-%dT%H-%M-%S).tar.xz"
+ARCHIVE_NAME="gnosis-keyper-$(date +%Y-%m-%dT%H-%M-%S).tar"
 
 source "${SCRIPT_DIR}/../.env"
 
@@ -90,7 +90,7 @@ else
 fi
 
 echo -e "${B}[5/6] Compressing archive...${DEF}"
-docker run --rm -i -v "${WORKDIR}:/workdir" -v "$BACKUPS_DIR:/data" alpine:3.20.1 ash -c "apk -q --no-progress --no-cache add xz pv && tar -cf - -C /workdir . | pv -petabs \$(du -sb /workdir | cut -f 1) | xz -zq > /data/${ARCHIVE_NAME}"
+docker run --rm -i -v "${WORKDIR}:/workdir" -v "$BACKUPS_DIR:/data" alpine:3.20.1 ash -c "apk -q --no-progress --no-cache add pv && tar -cf - -C /workdir . | pv -petabs \$(du -sb /workdir | cut -f 1) > /data/${ARCHIVE_NAME}"
 
 echo -e "${B}[6/6] Cleaning up...${DEF}"
 rm "${SCRIPT_DIR}/../data/db/keyper.dump" || true
