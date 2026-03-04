@@ -1,15 +1,22 @@
 # External Keypers: How to use DKG injection script
 
-This guide describes the process for external keypers to use DKG injection script in the **shutter-api-1002** deployment, using the same signing keys as the initial keypers deployment.
+This guide describes the process for how external keypers can use DKG injection script in the **shutter-api-1002** deployment.
+
+## Purpose
+
+To restore key material generated during previous deployment, necessary to fulfill pending decryption tasks.
+
+---
+
+**Initial Keypers**: Keypers who were active during **eon 11**. Timestamp range: Mar-24-2025 01:03:45 PM UTC (1742821425) - Dec-01-2025 11:25:35 AM UTC (1764588335).
 
 ---
 
 ## Prerequisites
 
-- Access to the **shutter-api-1002** deployment environment
+- Fully synced keyper running the shutter-api-1002 deployment version
 - The same signing keys used for initial keypers deployment
 - Backup from the initial keypers
-- The DKG injection script (`inject_dkg_result.sh`)
 
 ---
 
@@ -17,40 +24,29 @@ This guide describes the process for external keypers to use DKG injection scrip
 
 ### 1. Run Keypers with Same Signing Keys
 
-In the **shutter-api-1002** deployment, run the keypers with the **same signing keys** that were used previously for the initial keypers deployment.
+In the **shutter-api-1002** deployment, run the keypers with the **same signing keys** that were used previously for the initial keypers deployment and wait for them to sync with the network.
 
-### 2. Wait for Keypers to Sync
+Sync can be confirmed by this log line.
+```
+synced registry contract end-block=20044460 num-discarded-events=0 num-inserted-events=0 start-block=20044460
+```
+The **end-block** should be (or greater than) the current head of the chain in the explorer.
 
-Wait for the keypers to sync with the network before proceeding.
+### 2. Ensure the backup is copied to the same instance
 
-### 3. Keyper Set Transition
+Copy the backup to the same instance where the keyper is running.
 
-**Shutter team** will execute a new **keyper set transition**. After the keyper set transition is completed, a new eon key will be generated.
+### 3. Run DKG Injection Script
 
-### 4. Obtain Backup from Initial Keypers
-
-Ensure you have the **backup from the initial keypers** available. This backup is required for the DKG injection step.
-
-### 5. Run DKG Injection Script
-
-Run the DKG injection script with the backup path:
+After a keyperset transition is done, run the DKG injection script with the backup path:
 
 ```bash
-./inject_dkg_result.sh <path_to_backup>
+curl -fsSL https://raw.githubusercontent.com/shutter-network/shutter-keyper-deployment/feat/dkg-result-injection/scripts/inject_dkg_result.sh | bash -s -- <path_to_backup>
 ```
 
 Replace `<path_to_backup>` with the actual path to your backup.
 
-### 6. Verify in Database
-
-After the script runs successfully, verify the injection by checking the database:
-
-- Query the **`keyper_set`** table for **`keyper_config_index = 11`** (eon 11)
-- Confirm that your keyper is now included in the eon 11 keypers
-
-```sql
-select * from keyper_set where keyper_config_index = 11;
-```
+Check if there is no error in running the script.
 
 ---
 
@@ -58,9 +54,6 @@ select * from keyper_set where keyper_config_index = 11;
 
 | Step | Action |
 |------|--------|
-| 1 | Run keypers in shutter-api-1002 with same signing keys as initial keypers |
-| 2 | Wait for keypers to sync |
-| 3 | Perform new keyper set transition (AddKeyperSet) |
-| 4 | Obtain backup from initial keypers |
-| 5 | Run `./inject_dkg_result.sh <path_to_backup>` |
-| 6 | Verify in DB: eon 11 `keyper_set` contains your keyper |
+| 1 | Run keypers in shutter-api-1002 with same signing keys as initial keypers and wait for keypers to sync  |
+| 2 | Ensure the backup is copied to the same instance |
+| 3 | Run DKG injection script with backup path |
