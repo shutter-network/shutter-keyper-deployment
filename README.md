@@ -183,6 +183,10 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `shutter-api-keyper/2026.03.01` – `2026-03-10`
+- Upgrade assets version to v1.0.2
+- Add shutter-api-gnosis-1002 deployment
+
 ### `shutter-api-keyper/2025.12.01` – `2025-12-18`
 - Upgrade to [Keyper v1.4.0](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.0)
 - Add support for event-based decryption conditions via ShutterEventTriggerRegistry (not enabled in this release)
