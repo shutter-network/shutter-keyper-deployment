@@ -184,6 +184,8 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 ## Version History
 
 ### `shutter-api-keyper/2026.03.01` – `2026-03-10`
+Important: This release introduces a new API Keyper set deployment with new assets and Keyper image 1.4.0. Do not update an existing API Keyper from earlier releases to this one. To run this release, operators should start from a fresh setup.
+
 - Upgrade assets version to v1.0.2
 - Add shutter-api-gnosis-1002 deployment
 
