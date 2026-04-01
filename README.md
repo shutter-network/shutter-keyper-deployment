@@ -183,9 +183,25 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
-### `shutter-api-keyper/2026.03.01` – `2026-03-10`
-Important: This release introduces a new API Keyper set deployment with new assets and Keyper image 1.4.0. Do not update an existing API Keyper from earlier releases to this one. To run this release, operators should start from a fresh setup.
+### `shutter-api-keyper/2026.04.01` – `2026-04-01`
+- Upgrade to [Keyper v1.4.1](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.1)
+- Update assets image to shutter-api-gnosis-1002-set1.1.0 in docker-compose.yml
+- Hardening event-based decryption triggers:
+  - Support for complex event data values
+  - Fix event trigger keying to (eon, identity)
+  - Order triggers by identity
+  - Fix identity creation to include trigger definition
+- Fixes related to fork and DKG handling:
+  - Fix fork height definition persistence and hotfix
+  - Validation checks for batch config messages in keyper
+  - Fix shutter gob file and batch config validation
+- Network-specific overrides for Gnosis:
+  - Add shutter-api-gnosis-1002 eon and fork overrides
 
+### `shutter-api-keyper/2026.03.01` – `2026-03-10`
+Important: This release introduces a new API Keyper set deployment with new assets and Keyper image 1.4.0.
+Do not update an existing API Keyper from earlier releases to this one.
+To run this release, operators should start from a fresh setup.
 - Upgrade assets version to v1.0.2
 - Add shutter-api-gnosis-1002 deployment
 
