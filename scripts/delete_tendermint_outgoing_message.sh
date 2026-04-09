@@ -9,6 +9,7 @@ DB_SERVICE="db"
 DB_NAME="keyper"
 DB_USER="postgres"
 TABLE_NAME="tendermint_outgoing_messages"
+MESSAGE_LABEL="outgoing batch config message"
 DEFAULT_WHERE_CLAUSE="description = 'new batch config (activation-block-number=45304962, config-index=14)'"
 
 DB_STARTED_BY_SCRIPT=0
@@ -83,29 +84,35 @@ if ! docker compose exec -T "${DB_SERVICE}" pg_isready -U "${DB_USER}" -d "${DB_
   exit 1
 fi
 
-log "Checking how many rows match: ${DEFAULT_WHERE_CLAUSE}"
+log "Checking whether the ${MESSAGE_LABEL} exists"
 MATCH_COUNT=$(docker compose exec -T "${DB_SERVICE}" \
   psql -t -A -U "${DB_USER}" -d "${DB_NAME}" \
   -c "SELECT COUNT(*) FROM ${TABLE_NAME} WHERE ${DEFAULT_WHERE_CLAUSE};" | tr -d '[:space:]')
 
 if ! [[ "${MATCH_COUNT}" =~ ^[0-9]+$ ]]; then
-  echo "ERROR: failed to determine the number of matching rows" >&2
+  echo "ERROR: failed to determine whether the ${MESSAGE_LABEL} exists" >&2
   exit 1
+fi
+
+if [[ "${MATCH_COUNT}" -eq 0 ]]; then
+  log "The ${MESSAGE_LABEL} is already absent; nothing to delete"
+  exit 0
 fi
 
 if [[ "${MATCH_COUNT}" -ne 1 ]]; then
-  echo "ERROR: expected exactly 1 matching row in ${TABLE_NAME}, found ${MATCH_COUNT}" >&2
+  echo "ERROR: expected exactly 1 matching ${MESSAGE_LABEL}, found ${MATCH_COUNT}" >&2
   exit 1
 fi
 
-log "Deleting the matching row from ${TABLE_NAME}"
+
+log "Deleting the ${MESSAGE_LABEL}"
 DELETE_COUNT=$(docker compose exec -T "${DB_SERVICE}" \
   psql -t -A -U "${DB_USER}" -d "${DB_NAME}" \
   -c "WITH deleted AS (DELETE FROM ${TABLE_NAME} WHERE ${DEFAULT_WHERE_CLAUSE} RETURNING 1) SELECT COUNT(*) FROM deleted;" | tr -d '[:space:]')
 
 if [[ "${DELETE_COUNT}" != "1" ]]; then
-  echo "ERROR: delete operation removed ${DELETE_COUNT} rows instead of 1" >&2
+  echo "ERROR: delete operation removed ${DELETE_COUNT} rows instead of 1 ${MESSAGE_LABEL}" >&2
   exit 1
 fi
 
-log "Deleted 1 row from ${TABLE_NAME}"
+log "SUCCESS: deleted the ${MESSAGE_LABEL}"
