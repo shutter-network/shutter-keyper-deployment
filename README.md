@@ -183,6 +183,10 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `shutter-api-keyper/2026.04.02` – `2026-04-10`
+Important: This release includes a one-off maintenance script. Affected operators will be contacted directly.
+- Add script to delete queued Shuttermint outgoing message for affected keypers. See rolling-shutter#683 for context.
+
 ### `shutter-api-keyper/2026.04.01` – `2026-04-01`
 - Upgrade to [Keyper v1.4.1](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.1)
 - Update assets image to shutter-api-gnosis-1002-set1.1.0 in docker-compose.yml
