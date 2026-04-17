@@ -183,6 +183,12 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `shutter-api-keyper/2026.04.03` – `2026-04-17`
+- Upgrade to [Keyper v1.4.2](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.2)
+- Update chain initialization to support default state initialization when only the validator key is present
+- Update event registrations to use the keyper set index instead of the eon as a parameter
+- Add a `mise` test setup to improve integration testing
+
 ### `shutter-api-keyper/2026.04.02` – `2026-04-10`
 Important: This release includes a one-off maintenance script. Affected operators will be contacted directly.
 - Add script to delete queued Shuttermint outgoing message for affected keypers. See rolling-shutter#683 for context.
