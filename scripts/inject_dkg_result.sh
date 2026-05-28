@@ -225,8 +225,14 @@ if ! docker exec "$BACKUP_CONTAINER" pg_isready -U "$BACKUP_USER" -d "$BACKUP_DB
 fi
 
 log "Restoring dump into backup DB"
+_pg_restore_rc=0
 docker exec "$BACKUP_CONTAINER" bash -lc \
-  "pg_restore -v -C -U '$BACKUP_USER' -d '$BACKUP_DB' /backup/dump.sql" >/dev/null 2>&1
+  "pg_restore -C -U '$BACKUP_USER' -d '$BACKUP_DB' /backup/dump.sql" >/dev/null 2>&1 \
+  || _pg_restore_rc=$?
+if [[ "$_pg_restore_rc" -ge 2 ]]; then
+  echo "ERROR: pg_restore failed (exit code $_pg_restore_rc)" >&2
+  exit 1
+fi
 
 for entry in "${TABLES[@]}"; do
   IFS=: read -r TABLE KEY_COLUMN KEY_VALUE SELECT_COLUMNS <<<"$entry"
