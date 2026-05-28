@@ -213,14 +213,18 @@ docker run -d --rm \
   "$BACKUP_IMAGE" >/dev/null
 
 log "Waiting for backup DB to become ready"
-for i in {1..30}; do
+_consecutive=0
+for i in {1..60}; do
   if docker exec "$BACKUP_CONTAINER" pg_isready -U "$BACKUP_USER" -d "$BACKUP_DB" >/dev/null 2>&1; then
-    break
+    _consecutive=$(( _consecutive + 1 ))
+    [ "$_consecutive" -ge 3 ] && break
+  else
+    _consecutive=0
   fi
   sleep 1
 done
-if ! docker exec "$BACKUP_CONTAINER" pg_isready -U "$BACKUP_USER" -d "$BACKUP_DB" >/dev/null 2>&1; then
-  echo "ERROR: backup DB did not become ready after 30 seconds" >&2
+if [[ "$_consecutive" -lt 3 ]]; then
+  echo "ERROR: backup DB did not become ready after 60 seconds" >&2
   exit 1
 fi
 
