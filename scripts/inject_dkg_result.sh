@@ -141,6 +141,24 @@ if (( CURRENT_BLOCK < MIN_TENDERMINT_CURRENT_BLOCK )); then
   exit 1
 fi
 
+log "Checking keyper_set row exists for keyper_config_index=${KEYPER_CONFIG_INDEX}"
+KEYPER_SET_COUNT=$(docker compose exec -T db sh -lc \
+  "psql -t -A -U postgres -d ${KEYPER_DB} -c \"SELECT COUNT(*) FROM keyper_set WHERE keyper_config_index = '${KEYPER_CONFIG_INDEX}'\"" \
+  2>/dev/null | tr -d '[:space:]')
+if [[ "$KEYPER_SET_COUNT" == "0" ]]; then
+  echo "ERROR: keyper_set row for keyper_config_index=${KEYPER_CONFIG_INDEX} not found in live DB; node may not be sufficiently synced. Please wait and try again." >&2
+  exit 1
+fi
+
+log "Checking tendermint_batch_config row exists for keyper_config_index=${KEYPER_CONFIG_INDEX}"
+BATCH_CONFIG_COUNT=$(docker compose exec -T db sh -lc \
+  "psql -t -A -U postgres -d ${KEYPER_DB} -c \"SELECT COUNT(*) FROM tendermint_batch_config WHERE keyper_config_index = '${KEYPER_CONFIG_INDEX}'\"" \
+  2>/dev/null | tr -d '[:space:]')
+if [[ "$BATCH_CONFIG_COUNT" == "0" ]]; then
+  echo "ERROR: tendermint_batch_config row for keyper_config_index=${KEYPER_CONFIG_INDEX} not found in live DB; node may not be sufficiently synced. Please wait and try again." >&2
+  exit 1
+fi
+
 log "Stopping keyper service"
 docker compose stop keyper >/dev/null 2>&1 || true
 
@@ -249,8 +267,7 @@ for entry in "${TABLES[@]}"; do
     >"$LIVE_CSV_FILE" 2>/dev/null || true
 
   if [[ ! -s "$LIVE_CSV_FILE" ]]; then
-    echo "ERROR: no data extracted from live DB (no row with ${KEY_COLUMN}=${KEY_VALUE} in ${TABLE})" >&2
-    exit 1
+    log "No existing row for ${TABLE} ${KEY_COLUMN}=${KEY_VALUE} in live DB, will insert"
   fi
 
   if [[ -s "$LIVE_CSV_FILE" && -s "$BACKUP_CSV_FILE" && "$(cat "$LIVE_CSV_FILE")" == "$(cat "$BACKUP_CSV_FILE")" ]]; then
@@ -267,23 +284,23 @@ for entry in "${TABLES[@]}"; do
     echo "INSERT INTO ${BACKUP_TABLE_NAME} SELECT * FROM ${TABLE};"
   } | docker compose exec -T db psql -U postgres -d "${KEYPER_DB}" >/dev/null 2>&1
 
-  UPDATE_SET=""
+  UPSERT_SET=""
   for col in "${SELECT_COLUMN_LIST[@]}"; do
-    if [[ -z "$UPDATE_SET" ]]; then
-      UPDATE_SET="${col} = u.${col}"
+    if [[ -z "$UPSERT_SET" ]]; then
+      UPSERT_SET="${col} = EXCLUDED.${col}"
     else
-      UPDATE_SET="${UPDATE_SET}, ${col} = u.${col}"
+      UPSERT_SET="${UPSERT_SET}, ${col} = EXCLUDED.${col}"
     fi
   done
 
   log "Restoring ${TABLE} row ${KEY_COLUMN}=${KEY_VALUE}"
   {
     echo "BEGIN;"
-    echo "CREATE TEMP TABLE tmp_update AS SELECT ${SELECT_COLUMNS_WITH_KEY} FROM ${TABLE} WHERE 1=0;"
-    echo "COPY tmp_update FROM STDIN WITH CSV;"
+    echo "CREATE TEMP TABLE tmp_upsert AS SELECT ${SELECT_COLUMNS_WITH_KEY} FROM ${TABLE} WHERE 1=0;"
+    echo "COPY tmp_upsert FROM STDIN WITH CSV;"
     cat "$BACKUP_CSV_FILE"
     echo '\.'
-    echo "UPDATE ${TABLE} AS t SET ${UPDATE_SET} FROM tmp_update u WHERE t.${KEY_COLUMN} = u.${KEY_COLUMN};"
+    echo "INSERT INTO ${TABLE} (${SELECT_COLUMNS_WITH_KEY}) SELECT ${SELECT_COLUMNS_WITH_KEY} FROM tmp_upsert ON CONFLICT (${KEY_COLUMN}) DO UPDATE SET ${UPSERT_SET};"
     echo "COMMIT;"
   } | docker compose exec -T db psql -U postgres -d "${KEYPER_DB}" >/dev/null 2>&1
 done
