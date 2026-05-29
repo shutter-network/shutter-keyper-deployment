@@ -141,24 +141,6 @@ if (( CURRENT_BLOCK < MIN_TENDERMINT_CURRENT_BLOCK )); then
   exit 1
 fi
 
-log "Checking keyper_set row exists for keyper_config_index=${KEYPER_CONFIG_INDEX}"
-KEYPER_SET_COUNT=$(docker compose exec -T db sh -lc \
-  "psql -t -A -U postgres -d ${KEYPER_DB} -c \"SELECT COUNT(*) FROM keyper_set WHERE keyper_config_index = '${KEYPER_CONFIG_INDEX}'\"" \
-  2>/dev/null | tr -d '[:space:]')
-if [[ "$KEYPER_SET_COUNT" == "0" ]]; then
-  echo "ERROR: keyper_set row for keyper_config_index=${KEYPER_CONFIG_INDEX} not found in live DB; node may not be sufficiently synced. Please wait and try again." >&2
-  exit 1
-fi
-
-log "Checking tendermint_batch_config row exists for keyper_config_index=${KEYPER_CONFIG_INDEX}"
-BATCH_CONFIG_COUNT=$(docker compose exec -T db sh -lc \
-  "psql -t -A -U postgres -d ${KEYPER_DB} -c \"SELECT COUNT(*) FROM tendermint_batch_config WHERE keyper_config_index = '${KEYPER_CONFIG_INDEX}'\"" \
-  2>/dev/null | tr -d '[:space:]')
-if [[ "$BATCH_CONFIG_COUNT" == "0" ]]; then
-  echo "ERROR: tendermint_batch_config row for keyper_config_index=${KEYPER_CONFIG_INDEX} not found in live DB; node may not be sufficiently synced. Please wait and try again." >&2
-  exit 1
-fi
-
 log "Stopping keyper service"
 docker compose stop keyper >/dev/null 2>&1 || true
 
