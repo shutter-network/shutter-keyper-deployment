@@ -1,31 +1,32 @@
 #!/usr/bin/env bash
 
-# This script overrides a selected DKG result in the keyper database
-# with the corresponding data from a backup. The following tables are
-# affected:
-# - dkg_result (columns: success, error, pure_result)
-# - keyper_set (columns: keypers, threshold)
-# - tendermint_batch_config (columns: keypers, threshold)
+# This script injects a DKG result into the keyper database. The following
+# tables are affected:
+# - dkg_result: eon, success, error, pure_result — copied from backup
+# - keyper_set: keyper_config_index, activation_block_number, keypers, threshold — hardcoded
+# - tendermint_batch_config: all columns — hardcoded except eon/success/error/pure_result
 #
-# The existing tables are backed up in the same database (with suffix
-# "_backup") before applying the changes in case they need to be
-# restored.
-#
-# The rows to update are identified by EON and KEYPER_CONFIG_INDEX
-# variables defined below.
+# The existing tables are backed up in the same database (with suffix "_backup")
+# before applying changes.
 #
 # Usage: ./inject_dkg_result.sh <path-to-backup.tar|path-to-backup.tar.xz>
 #
-# Ensure the node is sufficiently synced before running. If the keyper
-# service is running, it will be stopped during the operation and
-# restarted afterwards. The database service will be started if not
-# already running, and stopped again afterwards if it was not running.
+# Ensure the node is sufficiently synced before running. If the keyper service
+# is running, it will be stopped during the operation and restarted afterwards.
+# The database service will be started if not already running, and stopped again
+# afterwards if it was not running before.
 
 set -euo pipefail
 
+MIN_TENDERMINT_CURRENT_BLOCK="0"
+
 EON="11"
 KEYPER_CONFIG_INDEX="11"
-MIN_TENDERMINT_CURRENT_BLOCK="0"
+KEYPERS="{0x2a9212e1eFA7F66e779a9E6B771EC110114a5f48,0x8d3642f53925fa409eb93F7eC54F444E35e2d3D4,0x6C89A67d92fd734872a5C52d1550fb3Ce316F152,0xf211186332B072A1b145F46F91E92C8EEc1Cb49c,0x7FfC32AE6270DA85Da831c631Bcc437B99973aCc}"
+THRESHOLD="3"
+ACTIVATION_BLOCK_NUMBER="44979852"
+TENDERMINT_HEIGHT="723"
+TENDERMINT_STARTED="true"
 
 BACKUP_CONTAINER="backup-db"
 BACKUP_IMAGE="postgres"
@@ -33,15 +34,9 @@ BACKUP_DB="postgres"
 BACKUP_USER="postgres"
 BACKUP_PASSWORD="postgres"
 KEYPER_DB="keyper"
-BACKUP_TABLE_SUFFIX="_backup"
 
 TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t inject-dkg-result)"
 DUMP_FILE="${TMP_DIR}/keyper.dump"
-TABLES=(
-  "dkg_result:eon:${EON}:success, error, pure_result"
-  "tendermint_batch_config:keyper_config_index:${KEYPER_CONFIG_INDEX}:keypers, threshold"
-  "keyper_set:keyper_config_index:${KEYPER_CONFIG_INDEX}:keypers, threshold"
-)
 
 log() {
   echo "==> $1"
@@ -220,81 +215,50 @@ if [[ "$_pg_restore_rc" -ge 2 ]]; then
   exit 1
 fi
 
-for entry in "${TABLES[@]}"; do
-  IFS=: read -r TABLE KEY_COLUMN KEY_VALUE SELECT_COLUMNS <<<"$entry"
-  BACKUP_CSV_FILE="${TMP_DIR}/${TABLE}_backup_${KEY_COLUMN}_${KEY_VALUE}.csv"
-  LIVE_CSV_FILE="${TMP_DIR}/${TABLE}_live_${KEY_COLUMN}_${KEY_VALUE}.csv"
-  SELECT_COLUMN_LIST=()
+log "Checking dkg_result row exists in backup for eon=${EON}"
+BACKUP_DKG_COUNT=$(docker exec "$BACKUP_CONTAINER" psql -t -A -U "$BACKUP_USER" -d "$KEYPER_DB" \
+  -c "SELECT COUNT(*) FROM dkg_result WHERE eon = ${EON}" 2>/dev/null | tr -d '[:space:]')
+if [[ "$BACKUP_DKG_COUNT" == "0" ]]; then
+  echo "ERROR: no dkg_result row for eon=${EON} in backup DB" >&2
+  exit 1
+fi
 
-  for col in ${SELECT_COLUMNS//,/ }; do
-    [[ -z "$col" ]] && continue
-    if [[ "$col" == "$KEY_COLUMN" ]]; then
-      echo "ERROR: column list for ${TABLE} must not include key column ${KEY_COLUMN}" >&2
-      exit 1
-    fi
-    SELECT_COLUMN_LIST+=("$col")
+log "Backing up tables"
+{
+  for TABLE in dkg_result keyper_set tendermint_batch_config; do
+    echo "CREATE TABLE IF NOT EXISTS ${TABLE}_backup (LIKE ${TABLE} INCLUDING ALL);"
+    echo "TRUNCATE ${TABLE}_backup;"
+    echo "INSERT INTO ${TABLE}_backup SELECT * FROM ${TABLE};"
   done
+} | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >/dev/null
 
-  if [[ "${#SELECT_COLUMN_LIST[@]}" -eq 0 ]]; then
-    echo "ERROR: no non-key columns specified for update in ${TABLE}" >&2
-    exit 1
-  fi
-
-  SELECT_COLUMN_LIST_WITH_KEY=("$KEY_COLUMN" "${SELECT_COLUMN_LIST[@]}")
-  SELECT_COLUMNS_WITH_KEY=$(IFS=', '; echo "${SELECT_COLUMN_LIST_WITH_KEY[*]}")
-
-  log "Extracting ${TABLE} row ${KEY_COLUMN}=${KEY_VALUE} from backup DB"
-  docker exec "$BACKUP_CONTAINER" bash -lc \
-    "psql -v ON_ERROR_STOP=1 -U '$BACKUP_USER' -d '$KEYPER_DB' -c \"COPY (SELECT ${SELECT_COLUMNS_WITH_KEY} FROM ${TABLE} WHERE ${KEY_COLUMN} = '${KEY_VALUE}' LIMIT 1) TO STDOUT WITH CSV\"" \
-    >"$BACKUP_CSV_FILE" 2>/dev/null
-
-  if [[ ! -s "$BACKUP_CSV_FILE" ]]; then
-    echo "ERROR: no data extracted from backup DB (no row with ${KEY_COLUMN}=${KEY_VALUE} in ${TABLE})" >&2
-    exit 1
-  fi
-
-  log "Extracting ${TABLE} row ${KEY_COLUMN}=${KEY_VALUE} from live DB"
-  docker compose exec -T db sh -lc \
-    "psql -v ON_ERROR_STOP=1 -U postgres -d ${KEYPER_DB} -c \"COPY (SELECT ${SELECT_COLUMNS_WITH_KEY} FROM ${TABLE} WHERE ${KEY_COLUMN} = '${KEY_VALUE}' LIMIT 1) TO STDOUT WITH CSV\"" \
-    >"$LIVE_CSV_FILE" 2>/dev/null || true
-
-  if [[ ! -s "$LIVE_CSV_FILE" ]]; then
-    log "No existing row for ${TABLE} ${KEY_COLUMN}=${KEY_VALUE} in live DB, will insert"
-  fi
-
-  if [[ -s "$LIVE_CSV_FILE" && -s "$BACKUP_CSV_FILE" && "$(cat "$LIVE_CSV_FILE")" == "$(cat "$BACKUP_CSV_FILE")" ]]; then
-    log "Live row for ${TABLE} already matches backup, nothing to do"
-    continue
-  fi
-
-  BACKUP_TABLE_NAME="${TABLE}${BACKUP_TABLE_SUFFIX}"
-
-  log "Backing up table ${TABLE} to ${BACKUP_TABLE_NAME} in live DB"
-  {
-    echo "CREATE TABLE IF NOT EXISTS ${BACKUP_TABLE_NAME} (LIKE ${TABLE} INCLUDING ALL);"
-    echo "TRUNCATE ${BACKUP_TABLE_NAME};"
-    echo "INSERT INTO ${BACKUP_TABLE_NAME} SELECT * FROM ${TABLE};"
-  } | docker compose exec -T db psql -U postgres -d "${KEYPER_DB}" >/dev/null 2>&1
-
-  UPSERT_SET=""
-  for col in "${SELECT_COLUMN_LIST[@]}"; do
-    if [[ -z "$UPSERT_SET" ]]; then
-      UPSERT_SET="${col} = EXCLUDED.${col}"
-    else
-      UPSERT_SET="${UPSERT_SET}, ${col} = EXCLUDED.${col}"
-    fi
-  done
-
-  log "Restoring ${TABLE} row ${KEY_COLUMN}=${KEY_VALUE}"
-  {
-    echo "BEGIN;"
-    echo "CREATE TEMP TABLE tmp_upsert AS SELECT ${SELECT_COLUMNS_WITH_KEY} FROM ${TABLE} WHERE 1=0;"
-    echo "COPY tmp_upsert FROM STDIN WITH CSV;"
-    cat "$BACKUP_CSV_FILE"
-    echo '\.'
-    echo "INSERT INTO ${TABLE} (${SELECT_COLUMNS_WITH_KEY}) SELECT ${SELECT_COLUMNS_WITH_KEY} FROM tmp_upsert ON CONFLICT (${KEY_COLUMN}) DO UPDATE SET ${UPSERT_SET};"
-    echo "COMMIT;"
-  } | docker compose exec -T db psql -U postgres -d "${KEYPER_DB}" >/dev/null 2>&1
-done
+log "Injecting DKG result"
+{
+  echo "BEGIN;"
+  echo "CREATE TEMP TABLE tmp_dkg_result (eon bigint, success boolean, error text, pure_result bytea);"
+  echo "COPY tmp_dkg_result FROM STDIN WITH (FORMAT csv);"
+  docker exec "$BACKUP_CONTAINER" psql -U "$BACKUP_USER" -d "$KEYPER_DB" \
+    -c "COPY (SELECT eon, success, error, pure_result FROM dkg_result WHERE eon = ${EON} LIMIT 1) TO STDOUT WITH (FORMAT csv)"
+  echo '\.'
+  echo "INSERT INTO dkg_result (eon, success, error, pure_result)"
+  echo "  SELECT eon, success, error, pure_result FROM tmp_dkg_result"
+  echo "  ON CONFLICT (eon) DO UPDATE SET"
+  echo "    success = EXCLUDED.success, error = EXCLUDED.error, pure_result = EXCLUDED.pure_result;"
+  echo "INSERT INTO keyper_set (keyper_config_index, activation_block_number, keypers, threshold)"
+  echo "  VALUES (${KEYPER_CONFIG_INDEX}, ${ACTIVATION_BLOCK_NUMBER}, '${KEYPERS}', ${THRESHOLD})"
+  echo "  ON CONFLICT (keyper_config_index) DO UPDATE SET"
+  echo "    activation_block_number = EXCLUDED.activation_block_number,"
+  echo "    keypers = EXCLUDED.keypers,"
+  echo "    threshold = EXCLUDED.threshold;"
+  echo "INSERT INTO tendermint_batch_config (keyper_config_index, height, keypers, threshold, started, activation_block_number)"
+  echo "  VALUES (${KEYPER_CONFIG_INDEX}, ${TENDERMINT_HEIGHT}, '${KEYPERS}', ${THRESHOLD}, ${TENDERMINT_STARTED}, ${ACTIVATION_BLOCK_NUMBER})"
+  echo "  ON CONFLICT (keyper_config_index) DO UPDATE SET"
+  echo "    height = EXCLUDED.height,"
+  echo "    keypers = EXCLUDED.keypers,"
+  echo "    threshold = EXCLUDED.threshold,"
+  echo "    started = EXCLUDED.started,"
+  echo "    activation_block_number = EXCLUDED.activation_block_number;"
+  echo "COMMIT;"
+} | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >/dev/null
 
 log "Done"
