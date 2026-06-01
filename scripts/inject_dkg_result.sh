@@ -37,9 +37,18 @@ KEYPER_DB="keyper"
 
 TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t inject-dkg-result)"
 DUMP_FILE="${TMP_DIR}/keyper.dump"
+CMD_LOG="${TMP_DIR}/cmd.log"
 
 log() {
   echo "==> $1"
+}
+
+run_logged() {
+  local description="$1"; shift
+  if ! "$@" >"$CMD_LOG" 2>&1; then
+    echo "ERROR: ${description} failed" >&2
+    exit 1
+  fi
 }
 
 usage() {
@@ -83,6 +92,10 @@ cleanup() {
   rv=$?
   if [[ "$rv" -ne 0 ]]; then
     echo "Aborting due to error (exit code $rv)" >&2
+    if [[ -s "$CMD_LOG" ]]; then
+      echo "--- Last command output ---" >&2
+      cat "$CMD_LOG" >&2
+    fi
   fi
 
   log "Stopping backup container"
@@ -113,13 +126,17 @@ trap cleanup EXIT
 
 if [[ "$DB_WAS_RUNNING" -eq 0 ]]; then
   log "Starting db service (was not running)"
-  docker compose start db >/dev/null
+  run_logged "start db service" docker compose start db
 fi
 
 log "Checking shuttermint sync block number >= ${MIN_TENDERMINT_CURRENT_BLOCK}"
-CURRENT_BLOCK=$(docker compose exec -T db sh -lc \
+if ! docker compose exec -T db sh -lc \
   "psql -t -A -U postgres -d ${KEYPER_DB} -c \"SELECT current_block FROM tendermint_sync_meta ORDER BY current_block DESC LIMIT 1\"" \
-  2>/dev/null | tr -d '[:space:]')
+  >"$CMD_LOG" 2>&1; then
+  echo "ERROR: failed to read shuttermint sync block number" >&2
+  exit 1
+fi
+CURRENT_BLOCK=$(tr -d '[:space:]' <"$CMD_LOG")
 
 if [[ -z "$CURRENT_BLOCK" ]]; then
   echo "ERROR: failed to read shuttermint sync block number" >&2
@@ -181,13 +198,13 @@ if [[ ! -s "$DUMP_FILE" ]]; then
 fi
 
 log "Starting backup container"
-docker run -d --rm \
+run_logged "start backup container" docker run -d --rm \
   --name "$BACKUP_CONTAINER" \
   -e POSTGRES_USER="$BACKUP_USER" \
   -e POSTGRES_PASSWORD="$BACKUP_PASSWORD" \
   -e POSTGRES_DB="$BACKUP_DB" \
   -v "$DUMP_FILE:/backup/dump.sql:ro" \
-  "$BACKUP_IMAGE" >/dev/null
+  "$BACKUP_IMAGE"
 
 log "Waiting for backup DB to become ready"
 _consecutive=0
@@ -208,7 +225,7 @@ fi
 log "Restoring dump into backup DB"
 _pg_restore_rc=0
 docker exec "$BACKUP_CONTAINER" bash -lc \
-  "pg_restore -C -U '$BACKUP_USER' -d '$BACKUP_DB' /backup/dump.sql" >/dev/null 2>&1 \
+  "pg_restore -C -U '$BACKUP_USER' -d '$BACKUP_DB' /backup/dump.sql" >"$CMD_LOG" 2>&1 \
   || _pg_restore_rc=$?
 if [[ "$_pg_restore_rc" -ge 2 ]]; then
   echo "ERROR: pg_restore failed (exit code $_pg_restore_rc)" >&2
@@ -216,8 +233,12 @@ if [[ "$_pg_restore_rc" -ge 2 ]]; then
 fi
 
 log "Checking dkg_result row exists in backup for eon=${EON}"
-BACKUP_DKG_COUNT=$(docker exec "$BACKUP_CONTAINER" psql -t -A -U "$BACKUP_USER" -d "$KEYPER_DB" \
-  -c "SELECT COUNT(*) FROM dkg_result WHERE eon = ${EON}" 2>/dev/null | tr -d '[:space:]')
+if ! docker exec "$BACKUP_CONTAINER" psql -t -A -U "$BACKUP_USER" -d "$KEYPER_DB" \
+  -c "SELECT COUNT(*) FROM dkg_result WHERE eon = ${EON}" >"$CMD_LOG" 2>&1; then
+  echo "ERROR: failed to check dkg_result row in backup DB" >&2
+  exit 1
+fi
+BACKUP_DKG_COUNT=$(tr -d '[:space:]' <"$CMD_LOG")
 if [[ "$BACKUP_DKG_COUNT" == "0" ]]; then
   echo "ERROR: no dkg_result row for eon=${EON} in backup DB" >&2
   exit 1
@@ -230,7 +251,10 @@ log "Backing up tables"
     echo "TRUNCATE ${TABLE}_backup;"
     echo "INSERT INTO ${TABLE}_backup SELECT * FROM ${TABLE};"
   done
-} | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >/dev/null
+} | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >"$CMD_LOG" 2>&1 || {
+  echo "ERROR: failed to back up tables" >&2
+  exit 1
+}
 
 log "Injecting DKG result"
 {
@@ -259,6 +283,9 @@ log "Injecting DKG result"
   echo "    started = EXCLUDED.started,"
   echo "    activation_block_number = EXCLUDED.activation_block_number;"
   echo "COMMIT;"
-} | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >/dev/null
+} | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >"$CMD_LOG" 2>&1 || {
+  echo "ERROR: failed to inject DKG result" >&2
+  exit 1
+}
 
 log "Done"
