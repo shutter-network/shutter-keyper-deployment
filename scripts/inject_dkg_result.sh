@@ -244,17 +244,28 @@ if [[ "$BACKUP_DKG_COUNT" == "0" ]]; then
   exit 1
 fi
 
-log "Backing up tables"
-{
-  for TABLE in dkg_result keyper_set tendermint_batch_config; do
-    echo "CREATE TABLE IF NOT EXISTS ${TABLE}_backup (LIKE ${TABLE} INCLUDING ALL);"
-    echo "TRUNCATE ${TABLE}_backup;"
-    echo "INSERT INTO ${TABLE}_backup SELECT * FROM ${TABLE};"
-  done
-} | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >"$CMD_LOG" 2>&1 || {
-  echo "ERROR: failed to back up tables" >&2
+log "Checking if backup tables already exist"
+if ! docker compose exec -T db psql -t -A -U postgres -d "${KEYPER_DB}" \
+  -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('dkg_result_backup', 'keyper_set_backup', 'tendermint_batch_config_backup')" \
+  >"$CMD_LOG" 2>&1; then
+  echo "ERROR: failed to check backup tables" >&2
   exit 1
-}
+fi
+BACKUP_EXISTS=$(tr -d '[:space:]' <"$CMD_LOG")
+if [[ "$BACKUP_EXISTS" -gt 0 ]]; then
+  log "Backup tables already exist — skipping backup to preserve original state"
+else
+  log "Backing up tables"
+  {
+    for TABLE in dkg_result keyper_set tendermint_batch_config; do
+      echo "CREATE TABLE ${TABLE}_backup (LIKE ${TABLE} INCLUDING ALL);"
+      echo "INSERT INTO ${TABLE}_backup SELECT * FROM ${TABLE};"
+    done
+  } | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >"$CMD_LOG" 2>&1 || {
+    echo "ERROR: failed to back up tables" >&2
+    exit 1
+  }
+fi
 
 log "Injecting DKG result"
 {
