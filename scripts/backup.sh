@@ -58,9 +58,8 @@ trap cleanup_and_restart EXIT
 echo -e "${G}Creating backup archive${DEF}"
 echo -e "${B}Backup directory: ${Y}$BACKUPS_DIR${DEF}"
 
-echo -e "${B}[1/6] Stopping all services except database...${DEF}"
+echo -e "${B}[1/6] Stopping keyper...${DEF}"
 docker compose stop keyper
-docker compose stop chain
 
 echo -e "${B}[2/6] Creating database dump...${DEF}"
 docker compose exec db pg_dump -U postgres -d keyper -Fc --create --clean -f /var/lib/postgresql/data/keyper.dump
@@ -69,7 +68,6 @@ echo -e "${B}[3/6] Stopping database...${DEF}"
 docker compose stop db
 
 echo -e "${B}[4/6] Copying data...${DEF}"
-cp -a "${SCRIPT_DIR}/../data/chain/" "${WORKDIR}/chain"
 cp -a "${SCRIPT_DIR}/../data/db/keyper.dump" "${WORKDIR}/keyper.dump"
 cp -a "${SCRIPT_DIR}/../config" "${WORKDIR}/keyper-config"
 

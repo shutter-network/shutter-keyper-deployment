@@ -85,19 +85,15 @@ if [[ "$ASK_FOR_CONFIRMATION" == "true" ]]; then
     fi
 fi
 
-echo -e "${B}[1/6] Stopping services...${DEF}"
+echo -e "${B}[1/5] Stopping services...${DEF}"
 cd "$SCRIPT_DIR"
 docker compose down
 
-echo -e "${B}[2/6] Extracting backup archive...${DEF}"
+echo -e "${B}[2/5] Extracting backup archive...${DEF}"
 docker run --rm -v "$LATEST_BACKUP:/backup.tar.xz:ro" -v "$WORKDIR:/extract" alpine:3.20.1 ash -c "apk -q --no-progress --no-cache add xz && tar -xf /backup.tar.xz -C /extract"
 
-echo -e "${B}[2.5/6] Validating backup contents...${DEF}"
+echo -e "${B}[2.5/5] Validating backup contents...${DEF}"
 MISSING_COMPONENTS=()
-
-if [ ! -d "$WORKDIR/chain" ]; then
-    MISSING_COMPONENTS+=("chain data")
-fi
 
 if [ ! -d "$WORKDIR/keyper-config" ]; then
     MISSING_COMPONENTS+=("keyper configuration")
@@ -118,23 +114,17 @@ fi
 
 echo -e "${G}✓ Backup validation passed - all required components found${DEF}"
 
-echo -e "${B}[3/6] Restoring chain data...${DEF}"
-rm -rf "${SCRIPT_DIR}/../data/chain" || true
-mkdir -p "${SCRIPT_DIR}/../data"
-cp -a "$WORKDIR/chain" "${SCRIPT_DIR}/../data/chain"
-echo -e "${G}✓ Chain data restored${DEF}"
-
-echo -e "${B}[4/6] Restoring keyper configuration...${DEF}"
+echo -e "${B}[3/5] Restoring keyper configuration...${DEF}"
 rm -rf "${SCRIPT_DIR}/../config" || true
 cp -a "$WORKDIR/keyper-config" "${SCRIPT_DIR}/../config"
 echo -e "${G}✓ Keyper configuration restored${DEF}"
 
-echo -e "${B}[5/6] Restoring database dump...${DEF}"
+echo -e "${B}[4/5] Restoring database dump...${DEF}"
 mkdir -p "${SCRIPT_DIR}/../data/db-dump"
 cp "$WORKDIR/keyper.dump" "${SCRIPT_DIR}/../data/db-dump/keyper.dump"
 echo -e "${G}✓ Database dump restored${DEF}"
 
-echo -e "${B}[6/6] Restoring environment configuration...${DEF}"
+echo -e "${B}[5/5] Restoring environment configuration...${DEF}"
 if [ -f "$WORKDIR/env-config/.env" ]; then
     if [ -f "${SCRIPT_DIR}/../.env" ]; then
         cp "${SCRIPT_DIR}/../.env" "${SCRIPT_DIR}/../.env.backup.$(date +%Y%m%d_%H%M%S)"

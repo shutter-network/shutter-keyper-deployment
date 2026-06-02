@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-[[ -f /assets/variables.env ]] && . /assets/variables.env || (echo "Missing variables file (/assets/variables), assets container missing?"; exit 1)
-
 SOURCE=/config/generated.toml
 CFG=/config/keyper.toml
 
@@ -12,7 +10,7 @@ if [[ -f "$CFG" ]]; then
   _ETH_ADDRESS=$(grep -e "^# Ethereum address:" $CFG || true)
   _PEER_ID=$(grep -e "^# Peer identity:" $CFG || true)
   _P2P_KEY=$(grep -e "^P2PKey =" $CFG || true)
-  _ENCRYPTION_KEY=$(grep -e "^EncryptionKey =" $CFG || true)
+  _ECIES_PRIVATE_KEY=$(grep -e "^ECIESPrivateKey =" $CFG || true)
 fi
 
 mv "$SOURCE" "$CFG"
@@ -27,35 +25,32 @@ fi
 if [[ -n "${_P2P_KEY:-}" ]]; then
   sed -i "/^P2PKey = /c\\${_P2P_KEY}" $CFG
 fi
-if [[ -n "${_ENCRYPTION_KEY:-}" ]]; then
-  sed -i "/^EncryptionKey = /c\\${_ENCRYPTION_KEY}" $CFG
+if [[ -n "${_ECIES_PRIVATE_KEY:-}" ]]; then
+  sed -i "/^ECIESPrivateKey = /c\\${_ECIES_PRIVATE_KEY}" $CFG
 fi
 
-# Values set from assets container and compose env varibles
-sed -i "/^InstanceID/c\InstanceID = ${_ASSETS_INSTANCE_ID}" $CFG
+# Values set from network and compose env variables
+sed -i "/^InstanceID/c\InstanceID = ${INSTANCE_ID}" $CFG
 if [ "$SHUTTER_HTTP_ENABLED" = "true" ] || [ "$SHUTTER_HTTP_ENABLED" = "false" ]; then
   sed -i "/^HTTPEnabled =/c\HTTPEnabled = $SHUTTER_HTTP_ENABLED" $CFG
 fi
 sed -i "/^DatabaseURL/c\DatabaseURL = \"${SHUTTER_DATABASEURL}\"" $CFG
-sed -i "/^MaxNumKeysPerMessage/c\MaxNumKeysPerMessage = ${_ASSETS_MAX_NUM_KEYS_PER_MESSAGE}" $CFG
-sed -i "/^SyncStartBlockNumber/c\SyncStartBlockNumber = ${_ASSETS_SYNC_START_BLOCK_NUMBER}" $CFG
+sed -i "/^MaxNumKeysPerMessage/c\MaxNumKeysPerMessage = ${MAX_NUM_KEYS_PER_MESSAGE}" $CFG
+sed -i "/^SyncStartBlockNumber/c\SyncStartBlockNumber = ${SYNC_START_BLOCK_NUMBER}" $CFG
 sed -i "/^PrivateKey/c\PrivateKey = \"${SHUTTER_CHAIN_NODE_PRIVATEKEY}\"" $CFG
 sed -i "/^DeploymentDir/c\DeploymentDir = \"\"  # unused" $CFG
 sed -i "/^EthereumURL/c\EthereumURL = \"${SHUTTER_CHAIN_NODE_ETHEREUMURL}\"" $CFG
-sed -i "/^KeyperSetManager/c\KeyperSetManager = \"${_ASSETS_KEYPER_SET_MANAGER}\"" $CFG
-sed -i "/^KeyBroadcastContract/c\KeyBroadcastContract = \"${_ASSETS_KEY_BROADCAST_CONTRACT}\"" $CFG
-sed -i "/^ShutterRegistry/c\ShutterRegistry = \"${_ASSETS_SHUTTERREGISTRY}\"" $CFG
-if [[ "${_ASSETS_SHUTTER_EVENT_TRIGGER_REGISTRY:-}" =~ ^0x[0-9a-fA-F]{40}$ ]]; then
-  sed -i "/^ShutterEventTriggerRegistry/c\ShutterEventTriggerRegistry = \"${_ASSETS_SHUTTER_EVENT_TRIGGER_REGISTRY}\"" $CFG
+sed -i "/^KeyperSetManager/c\KeyperSetManager = \"${KEYPER_SET_MANAGER}\"" $CFG
+sed -i "/^KeyBroadcastContract/c\KeyBroadcastContract = \"${KEY_BROADCAST_CONTRACT}\"" $CFG
+sed -i "/^ShutterRegistry/c\ShutterRegistry = \"${SHUTTER_REGISTRY}\"" $CFG
+sed -i "/^ECIESKeyRegistry/c\ECIESKeyRegistry = \"${ECIES_KEY_REGISTRY}\"" $CFG
+if [[ "${SHUTTER_EVENT_TRIGGER_REGISTRY:-}" =~ ^0x[0-9a-fA-F]{40}$ ]]; then
+  sed -i "/^ShutterEventTriggerRegistry/c\ShutterEventTriggerRegistry = \"${SHUTTER_EVENT_TRIGGER_REGISTRY}\"" $CFG
 fi
-sed -i "/^DiscoveryNamespace/c\DiscoveryNamespace = \"${_ASSETS_DISCOVERY_NAME_PREFIX}-${_ASSETS_INSTANCE_ID}\"" $CFG
-sed -i "/^ShuttermintURL/c\ShuttermintURL = \"${SHUTTER_SHUTTERMINT_SHUTTERMINTURL}\"" $CFG
-sed -i "/^ValidatorPublicKey/c\ValidatorPublicKey = \"$(cat /data/chain/config/priv_validator_pubkey.hex)\"" $CFG
+sed -i "/^DiscoveryNamespace/c\DiscoveryNamespace = \"${DISCOVERY_NAME_PREFIX}-${INSTANCE_ID}\"" $CFG
 sed -i "/^ListenAddresses/c\ListenAddresses = \"${SHUTTER_P2P_LISTENADDRESSES}\"" $CFG
 sed -i "/^AdvertiseAddresses/c\AdvertiseAddresses = \"${SHUTTER_P2P_ADVERTISEADDRESSES}\"" $CFG
-sed -i "/^CustomBootstrapAddresses/c\CustomBootstrapAddresses = ${_ASSETS_CUSTOM_BOOTSTRAP_ADDRESSES}" $CFG
-sed -i "/^SyncMonitorCheckInterval/c\SyncMonitorCheckInterval = ${_ASSETS_SYNC_MONITOR_CHECK_INTERVAL}" $CFG
-sed -i "/^DKGPhaseLength/c\DKGPhaseLength = ${_ASSETS_DKG_PHASE_LENGTH}" $CFG
-sed -i "/^DKGStartBlockDelta/c\DKGStartBlockDelta = ${_ASSETS_DKG_START_BLOCK_DELTA}" $CFG
+sed -i "/^CustomBootstrapAddresses/c\CustomBootstrapAddresses = ${CUSTOM_BOOTSTRAP_ADDRESSES}" $CFG
+sed -i "/^SyncMonitorCheckInterval/c\SyncMonitorCheckInterval = ${SYNC_MONITOR_CHECK_INTERVAL}" $CFG
 sed -i "/^Enabled/c\Enabled = ${SHUTTER_METRICS_ENABLED}" $CFG
 sed -i "/^Port/c\Port = ${SHUTTER_METRICS_PORT}" $CFG

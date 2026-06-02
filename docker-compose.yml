@@ -6,14 +6,11 @@ x-logging: &logging
 x-image-main: &image-main
   image: ${SHUTTER_IMAGE_ROLLING_SHUTTER:-ghcr.io/shutter-network/keyper:v1.4.2}
 
-x-image-assets: &image-assets
-  image: ${SHUTTER_IMAGE_ASSETS:-ghcr.io/shutter-network/assets:shutter-api-gnosis-1002-set1.1.0}
-
 x-image-metrics: &image-metrics
   image: victoriametrics/vmagent:v1.101.0
 
-x-shutter-environment: &shutter-environment
-  #- SHUTTER_INSTANCEID= - set via config script
+x-shutter-environment:
+  &shutter-environment #- SHUTTER_INSTANCEID= - set via config script
   - SHUTTER_DATABASEURL=postgres://postgres@db:5432/keyper
   - SHUTTER_HTTP_ENABLED=${SHUTTER_HTTP_ENABLED}
   #- SHUTTER_MAXNUMKEYSPERMESSAGE= - set via config script
@@ -27,16 +24,8 @@ x-shutter-environment: &shutter-environment
   - SHUTTER_P2P_LISTENADDRESSES=/ip4/0.0.0.0/tcp/24003,/ip4/0.0.0.0/udp/24003/quic-v1
   - SHUTTER_P2P_ADVERTISEADDRESSES=/ip4/${PUBLIC_IP}/tcp/24003,/ip4/${PUBLIC_IP}/udp/24003/quic-v1
   #- SHUTTER_P2P_DISCOVERYNAMESPACE= - set via config script
-  - SHUTTER_SHUTTERMINT_SHUTTERMINTURL=http://chain:26657
-  #- SHUTTER_SHUTTERMINT_DKGPHASELENGTH= - set via config script
-  #- SHUTTER_SHUTTERMINT_DKGSTARTBLOCKDELTA= - set via config script
   - SHUTTER_METRICS_ENABLED=${METRICS_ENABLED}
   - SHUTTER_METRICS_PORT=9200
-
-x-shuttermint-environment: &shuttermint-environment
-  - SHUTTERMINT_MONIKER=${KEYPER_NAME:-$(openssl rand -hex 8)}
-  - PUBLIC_IP=${PUBLIC_IP}
-  - METRICS_ENABLED=${METRICS_ENABLED}
 
 services:
   db:
@@ -53,10 +42,6 @@ services:
       start_period: "30s"
       start_interval: "1s"
     logging: *logging
-
-  assets:
-    <<: *image-assets
-    stop_grace_period: "0s"
 
   keyper-create-config:
     <<: *image-main
@@ -83,82 +68,17 @@ services:
       keyper-create-config:
         condition: service_completed_successfully
 
-  chain-init:
-    <<: *image-main
-    entrypoint:
-      - /rolling-shutter
-      - chain
-    environment: *shuttermint-environment
-    volumes_from:
-      - assets:ro
-    volumes:
-      - ./data/chain:/chain
-    command: "init --root /chain --genesis-keyper ${GENESIS_KEYPER} --blocktime ${SM_BLOCKTIME} --listen-address tcp://0.0.0.0:26657 --role validator"
-    depends_on:
-      keyper-initdb:
-        condition: service_completed_successfully
-      assets:
-        condition: service_healthy
-
   keyper-configure:
     image: busybox
     command: "./configure_keyper.sh"
+    env_file:
+      - path: ${CONFIG_ENV_FILE:-mainnet.env}
+        required: true
     environment: *shutter-environment
-    volumes_from:
-      - assets:ro
     volumes:
       - ./_container_scripts/configure_keyper.sh:/configure_keyper.sh:ro
       - ./data:/data
       - ./config:/config
-    depends_on:
-      chain-init:
-        condition: service_completed_successfully
-      assets:
-        condition: service_healthy
-
-  chain-configure:
-    image: busybox
-    command: "./configure_shuttermint.sh"
-    environment: *shuttermint-environment
-    volumes_from:
-      - assets:ro
-    volumes:
-      - ./_container_scripts/configure_shuttermint.sh:/configure_shuttermint.sh:ro
-      - ./data:/data
-    depends_on:
-      chain-init:
-        condition: service_completed_successfully
-      assets:
-        condition: service_healthy
-
-  chain:
-    <<: *image-main
-    restart: always
-    entrypoint:
-      - /rolling-shutter
-      - chain
-    ports:
-      - "27656:27656"
-      - "${METRICS_LISTEN_IP}:27660:27660"
-    volumes_from:
-      - assets:ro
-    volumes:
-      - ./data/chain:/chain
-    command: "--config /chain/config/config.toml"
-    healthcheck:
-      test: curl -sf http://localhost:26657/status
-      interval: 30s
-      timeout: 3s
-      start_period: 20m
-      start_interval: 2s
-    depends_on:
-      assets:
-        condition: service_healthy
-      keyper-configure:
-        condition: service_completed_successfully
-      chain-configure:
-        condition: service_completed_successfully
-    logging: *logging
 
   keyper:
     <<: *image-main
@@ -167,8 +87,6 @@ services:
       - /rolling-shutter
       - shutterservicekeyper
     command: "--config /config/keyper.toml"
-    volumes_from:
-      - assets:ro
     volumes:
       - ./config:/config
     ports:
@@ -177,10 +95,6 @@ services:
       - "3000:3000"
     depends_on:
       db:
-        condition: service_healthy
-      chain:
-        condition: service_healthy
-      assets:
         condition: service_healthy
       keyper-configure:
         condition: service_completed_successfully
@@ -193,16 +107,9 @@ services:
     environment:
       KEYPER_NAME:
       PUSHGATEWAY_URL:
-    volumes_from:
-      - assets:ro
     volumes:
       - ./config_static/vmagent.yaml:/config/vmagent.yml:ro
-      - ./_container_scripts/export-assets-vars.sh:/export-assets-vars.sh:ro
     entrypoint:
-      - "/export-assets-vars.sh"
       - "/vmagent-prod"
     command: '-promscrape.config=/config/vmagent.yml -remoteWrite.url=${PUSHGATEWAY_URL:-https://keyperingest.metrics.shutter.network/api/v1/write} -remoteWrite.basicAuth.username="${PUSHGATEWAY_USERNAME:-NOT_A_VALID_USER}" -remoteWrite.basicAuth.password="${PUSHGATEWAY_PASSWORD:-NOT_A_VALID_PASSWORD}"'
-    depends_on:
-      assets:
-        condition: service_healthy
     logging: *logging
