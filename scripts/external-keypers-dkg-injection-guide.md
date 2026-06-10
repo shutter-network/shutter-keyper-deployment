@@ -27,9 +27,11 @@ To restore key material generated during previous deployment, necessary to fulfi
 In the **shutter-api-1002** deployment, run the keypers with the **same signing keys** that were used previously for the initial keypers deployment and wait for them to sync with the network.
 
 Sync can be confirmed by this log line.
+
 ```
 synced registry contract end-block=20044460 num-discarded-events=0 num-inserted-events=0 start-block=20044460
 ```
+
 The **end-block** should be (or greater than) the current head of the chain in the explorer.
 
 ### 2. Ensure the backup is copied to the same instance
@@ -46,14 +48,32 @@ curl -fsSL https://raw.githubusercontent.com/shutter-network/shutter-keyper-depl
 
 Replace `<path_to_backup>` with the actual path to your backup.
 
-Check if there is no error in running the script.
+Check if there is no error in running the script. The output should look something like this:
+
+```
+==> Checking shuttermint sync block number >= 349800
+==> Stopping keyper service
+==> Extracting keyper DB from backup
+==> Starting backup container
+==> Waiting for backup DB to become ready
+==> Restoring dump into backup DB
+==> Checking backup DB state
+==> Checking if backup tables already exist
+==> Backing up tables
+==> Injecting DKG result
+==> Done
+==> Stopping backup container
+==> Restarting keyper service (was running before)
+==> Keeping db service running (was running before)
+==> Removing temporary directory /tmp/tmp.9IYCqJancu
+```
 
 ---
 
 ## Summary Checklist
 
-| Step | Action |
-|------|--------|
-| 1 | Run keypers in shutter-api-1002 with same signing keys as initial keypers and wait for keypers to sync  |
-| 2 | Ensure the backup is copied to the same instance |
-| 3 | Run DKG injection script with backup path |
+| Step | Action                                                                                                 |
+| ---- | ------------------------------------------------------------------------------------------------------ |
+| 1    | Run keypers in shutter-api-1002 with same signing keys as initial keypers and wait for keypers to sync |
+| 2    | Ensure the backup is copied to the same instance                                                       |
+| 3    | Run DKG injection script with backup path                                                              |
