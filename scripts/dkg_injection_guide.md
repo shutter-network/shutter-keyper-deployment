@@ -36,7 +36,7 @@ Copy the November Time capsule backup to the same instance where the Keyper is r
 
 ### 4. Run the DKG injection script
 
-Run the DKG injection script and provide the correct time capsule backup path:
+Run the DKG injection script in the `shutter-keyper-deployment` directory and provide the correct time capsule backup path:
 
 ```bash
 ./scripts/inject_dkg_result.sh <path_to_backup>
@@ -57,6 +57,7 @@ Check if there is no error in running the script. The output should look somethi
 ==> Checking if backup tables already exist
 ==> Backing up tables
 ==> Injecting DKG result
+==> Verifying injected data
 ==> Done
 ==> Stopping backup container
 ==> Restarting keyper service (was running before)
