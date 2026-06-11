@@ -23,7 +23,7 @@ All Keypers have already been requested to start a new instance with the Ethereu
 The synching status can be confirmed if you see the below logs:
 
 ```
-synced registry contract end-block=20044460 num-discarded-events=0 num-inserted-events=0 start-block=20044460
+synced registry contract end-block=46640633 num-discarded-events=0 num-inserted-events=0 start-block=46640633
 ```
 
 The **end-block** should greater than block 44980000 (Mar 4, 2026).
