@@ -60,4 +60,5 @@ Check if there is no error in running the script. The output should look somethi
 ==> Done
 ==> Stopping backup container
 ==> Restarting keyper service (was running before)
+==> Removing temporary directory /tmp/tmp.9IYCqJancu
 ```
