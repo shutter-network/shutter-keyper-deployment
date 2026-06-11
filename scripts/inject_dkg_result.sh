@@ -81,11 +81,11 @@ fi
 DB_WAS_RUNNING=0
 KEYPER_WAS_RUNNING=0
 
-if [[ -n "$(docker compose ps --status=running -q db 2>/dev/null || true)" ]]; then
+if [[ -n "$(docker compose ps --status=running -q db 2>/dev/null)" ]]; then
   DB_WAS_RUNNING=1
 fi
 
-if [[ -n "$(docker compose ps --status=running -q keyper 2>/dev/null || true)" ]]; then
+if [[ -n "$(docker compose ps --status=running -q keyper 2>/dev/null)" ]]; then
   KEYPER_WAS_RUNNING=1
 fi
 
@@ -154,8 +154,10 @@ if (( CURRENT_BLOCK < MIN_TENDERMINT_CURRENT_BLOCK )); then
   exit 1
 fi
 
-log "Stopping keyper service"
-docker compose stop keyper >/dev/null 2>&1 || true
+if [[ "$KEYPER_WAS_RUNNING" -eq 1 ]]; then
+  log "Stopping keyper service"
+  docker compose stop keyper >/dev/null 2>&1
+fi
 
 log "Extracting keyper DB from backup"
 TAR_WARNING_FLAGS=()
