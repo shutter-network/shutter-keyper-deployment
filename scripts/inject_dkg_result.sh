@@ -293,10 +293,12 @@ if [[ "$BACKUP_EXISTS" -gt 0 ]]; then
 else
   log "Backing up tables"
   {
+    echo "BEGIN;"
     for TABLE in dkg_result keyper_set tendermint_batch_config; do
       echo "CREATE TABLE ${TABLE}_backup (LIKE ${TABLE} INCLUDING ALL);"
       echo "INSERT INTO ${TABLE}_backup SELECT * FROM ${TABLE};"
     done
+    echo "COMMIT;"
   } | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U postgres -d "${KEYPER_DB}" >"$CMD_LOG" 2>&1 || {
     echo "ERROR: failed to back up tables" >&2
     exit 1
