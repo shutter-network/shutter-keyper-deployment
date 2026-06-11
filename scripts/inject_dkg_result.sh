@@ -287,10 +287,10 @@ if ! docker compose exec -T db psql -t -A -U postgres -d "${KEYPER_DB}" \
   echo "ERROR: failed to check backup tables" >&2
   exit 1
 fi
-BACKUP_EXISTS=$(tr -d '[:space:]' <"$CMD_LOG")
-if [[ "$BACKUP_EXISTS" -gt 0 ]]; then
+NUM_EXISTING_BACKUP_TABLES=$(tr -d '[:space:]' <"$CMD_LOG")
+if [[ "$NUM_EXISTING_BACKUP_TABLES" -eq 3 ]]; then
   log "Backup tables already exist — skipping backup to preserve original state"
-else
+elif [[ "$NUM_EXISTING_BACKUP_TABLES" -eq 0 ]]; then
   log "Backing up tables"
   {
     echo "BEGIN;"
@@ -303,6 +303,9 @@ else
     echo "ERROR: failed to back up tables" >&2
     exit 1
   }
+else
+  echo "ERROR: partial backup state — some but not all backup tables exist" >&2
+  exit 1
 fi
 
 log "Injecting DKG result"
