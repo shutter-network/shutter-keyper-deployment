@@ -340,4 +340,41 @@ log "Injecting DKG result"
   exit 1
 }
 
+log "Verifying injected data"
+if ! docker compose exec -T db psql -t -A -U postgres -d "${KEYPER_DB}" \
+  -c "SELECT COUNT(*) FROM dkg_result WHERE eon = ${EON} AND success = true AND pure_result IS NOT NULL" \
+  </dev/null >"$CMD_LOG" 2>&1; then
+  echo "ERROR: failed to verify dkg_result" >&2
+  exit 1
+fi
+VERIFY_DKG=$(tr -d '[:space:]' <"$CMD_LOG")
+if [[ "$VERIFY_DKG" != "1" ]]; then
+  echo "ERROR: dkg_result verification failed — expected 1 row with success=true and pure_result set for eon=${EON}, got ${VERIFY_DKG}" >&2
+  exit 1
+fi
+
+if ! docker compose exec -T db psql -t -A -U postgres -d "${KEYPER_DB}" \
+  -c "SELECT COUNT(*) FROM keyper_set WHERE keyper_config_index = ${KEYPER_CONFIG_INDEX} AND activation_block_number = ${ACTIVATION_BLOCK_NUMBER} AND keypers = '${KEYPERS}' AND threshold = ${THRESHOLD}" \
+  </dev/null >"$CMD_LOG" 2>&1; then
+  echo "ERROR: failed to verify keyper_set" >&2
+  exit 1
+fi
+VERIFY_KEYPER_SET=$(tr -d '[:space:]' <"$CMD_LOG")
+if [[ "$VERIFY_KEYPER_SET" != "1" ]]; then
+  echo "ERROR: keyper_set verification failed — expected 1 matching row for keyper_config_index=${KEYPER_CONFIG_INDEX}, got ${VERIFY_KEYPER_SET}" >&2
+  exit 1
+fi
+
+if ! docker compose exec -T db psql -t -A -U postgres -d "${KEYPER_DB}" \
+  -c "SELECT COUNT(*) FROM tendermint_batch_config WHERE keyper_config_index = ${KEYPER_CONFIG_INDEX} AND height = ${TENDERMINT_HEIGHT} AND keypers = '${KEYPERS}' AND threshold = ${THRESHOLD} AND started = ${TENDERMINT_STARTED} AND activation_block_number = ${ACTIVATION_BLOCK_NUMBER}" \
+  </dev/null >"$CMD_LOG" 2>&1; then
+  echo "ERROR: failed to verify tendermint_batch_config" >&2
+  exit 1
+fi
+VERIFY_BATCH_CONFIG=$(tr -d '[:space:]' <"$CMD_LOG")
+if [[ "$VERIFY_BATCH_CONFIG" != "1" ]]; then
+  echo "ERROR: tendermint_batch_config verification failed — expected 1 matching row for keyper_config_index=${KEYPER_CONFIG_INDEX}, got ${VERIFY_BATCH_CONFIG}" >&2
+  exit 1
+fi
+
 log "Done"
