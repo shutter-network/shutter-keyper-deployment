@@ -63,3 +63,7 @@ Check if there is no error in running the script. The output should look somethi
 ==> Restarting keyper service (was running before)
 ==> Removing temporary directory /tmp/tmp.9IYCqJancu
 ```
+
+### 5. Report the result of the script
+
+Please report the result of the script to the Shutter team under your individual Keyper group.
