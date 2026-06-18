@@ -183,6 +183,10 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
+### `shutter-api-keyper/2026.06.01` – `2026-06-16`
+- Update assets image to shutter-api-gnosis-1002-set1.1.1 in docker-compose.yml
+  - This increases the `MaxNumKeysPerMessage` keyper configuration from 500 to 800.
+
 ### `shutter-api-keyper/2026.04.03` – `2026-04-17`
 - Upgrade to [Keyper v1.4.2](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.2)
 - Update chain initialization to support default state initialization when only the validator key is present
