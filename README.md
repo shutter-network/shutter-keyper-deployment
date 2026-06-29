@@ -183,9 +183,16 @@ docker compose -f docker-compose.yml -f docker-compose.loki.yml up -d
 
 ## Version History
 
-### `shutter-api-keyper/2026.06.01` – `2026-06-16`
-- Update assets image to shutter-api-gnosis-1002-set1.1.1 in docker-compose.yml
-  - This increases the `MaxNumKeysPerMessage` keyper configuration from 500 to 800.
+### `shutter-api-keyper/2026.06.02` – `2026-06-29`
+- Upgrade to [Keyper v1.4.4](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.4)
+- Remove event trigger identity signing batching
+- Add mise event-decryption integration test
+- Update assets image to shutter-api-gnosis-1002-set1.1.2 in docker-compose.yml
+- Disable event trigger registration for deployment 1002
+- Increase `MaxNumKeysPerMessage` keyper configuration from 500 to 800
+
+### `shutter-api-keyper/2026.06.01` – `2026-06-12`
+- A one-off maintenance script to add a DKG injection script.
 
 ### `shutter-api-keyper/2026.04.03` – `2026-04-17`
 - Upgrade to [Keyper v1.4.2](https://github.com/shutter-network/rolling-shutter/releases/tag/v1.4.2)
