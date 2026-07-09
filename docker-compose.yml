@@ -53,21 +53,6 @@ services:
       - ./config:/config
     command: "generate-config --output /config/generated.toml --force"
 
-  keyper-initdb:
-    <<: *image-main
-    entrypoint:
-      - /rolling-shutter
-      - shutterservicekeyper
-    environment: *shutter-environment
-    volumes:
-      - ./config:/config
-    command: "initdb --config /config/generated.toml"
-    depends_on:
-      db:
-        condition: service_healthy
-      keyper-create-config:
-        condition: service_completed_successfully
-
   keyper-configure:
     image: busybox
     command: "./configure_keyper.sh"
@@ -79,6 +64,24 @@ services:
       - ./_container_scripts/configure_keyper.sh:/configure_keyper.sh:ro
       - ./data:/data
       - ./config:/config
+    depends_on:
+      keyper-create-config:
+        condition: service_completed_successfully
+
+  keyper-initdb:
+    <<: *image-main
+    entrypoint:
+      - /rolling-shutter
+      - shutterservicekeyper
+    environment: *shutter-environment
+    volumes:
+      - ./config:/config
+    command: "initdb --config /config/keyper.toml"
+    depends_on:
+      db:
+        condition: service_healthy
+      keyper-configure:
+        condition: service_completed_successfully
 
   keyper:
     <<: *image-main
@@ -94,11 +97,7 @@ services:
       - "${METRICS_LISTEN_IP}:9200:9200"
       - "3000:3000"
     depends_on:
-      db:
-        condition: service_healthy
       keyper-initdb:
-        condition: service_completed_successfully
-      keyper-configure:
         condition: service_completed_successfully
     logging: *logging
 
