@@ -96,6 +96,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      keyper-initdb:
+        condition: service_completed_successfully
       keyper-configure:
         condition: service_completed_successfully
     logging: *logging
