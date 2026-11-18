@@ -1,0 +1,10 @@
+# Used by test/config_generation.sh: the configuration steps need no network.
+services:
+  assets:
+    network_mode: none
+  keyper-create-config:
+    network_mode: none
+  chain-init:
+    network_mode: none
+  keyper-configure:
+    network_mode: none

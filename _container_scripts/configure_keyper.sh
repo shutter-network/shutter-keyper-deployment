@@ -57,5 +57,8 @@ sed -i "/^CustomBootstrapAddresses/c\CustomBootstrapAddresses = ${_ASSETS_CUSTOM
 sed -i "/^SyncMonitorCheckInterval/c\SyncMonitorCheckInterval = ${_ASSETS_SYNC_MONITOR_CHECK_INTERVAL}" $CFG
 sed -i "/^DKGPhaseLength/c\DKGPhaseLength = ${_ASSETS_DKG_PHASE_LENGTH}" $CFG
 sed -i "/^DKGStartBlockDelta/c\DKGStartBlockDelta = ${_ASSETS_DKG_START_BLOCK_DELTA}" $CFG
-sed -i "/^Enabled/c\Enabled = ${SHUTTER_METRICS_ENABLED}" $CFG
-sed -i "/^Port/c\Port = ${SHUTTER_METRICS_PORT}" $CFG
+# Other sections have keys named Enabled too, so only edit the ones in [Metrics]
+sed -i "/^\[Metrics\]/,/^\[.*\]/ s/^Enabled[[:space:]]*=.*/Enabled = ${SHUTTER_METRICS_ENABLED}/" $CFG
+sed -i "/^\[Metrics\]/,/^\[.*\]/ s/^Port[[:space:]]*=.*/Port = ${SHUTTER_METRICS_PORT}/" $CFG
+# Floodsub discovery used to follow METRICS_ENABLED by accident (#67); keep it on, as in the DAppNode package
+sed -i "/^\[P2P\.FloodSubDiscovery\]/,/^\[.*\]/ s/^Enabled[[:space:]]*=.*/Enabled = true/" $CFG
