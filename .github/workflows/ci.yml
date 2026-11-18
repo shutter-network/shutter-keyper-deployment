@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [shutter-api]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate the compose files
+        # LOKI_URL is optional (commented out in example-api.env), so compose warns about it.
+        run: |
+          docker compose --env-file example-api.env config --quiet
+          docker compose --env-file example-api.env -f docker-compose.yml -f docker-compose.loki.yml config --quiet
+
+      - name: Check that example-api.env sets every variable docker-compose.yml needs
+        run: test/check_env_template.py
+
+      - name: Install shellcheck 0.11.0
+        # The runner's shellcheck (0.9.0) has no busybox dialect.
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/shellcheck.tar.xz" \
+            https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz
+          echo "8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198  $RUNNER_TEMP/shellcheck.tar.xz" | sha256sum -c -
+          tar -xJf "$RUNNER_TEMP/shellcheck.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/shellcheck-v0.11.0" >> "$GITHUB_PATH"
+
+      - name: Shellcheck
+        run: test/shellcheck.sh
+
+      - name: Generate the keyper config and check it
+        run: test/config_generation.sh
